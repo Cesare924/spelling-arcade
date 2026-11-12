@@ -1,0 +1,19 @@
+{
+  "expo": {
+    "name": "Spelling Stars",
+    "slug": "spelling-stars",
+    "scheme": "spellingstars",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.cesare924.spellingstars",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.cesare924.spellingstars"
+    },
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": false }
+  }
+}
