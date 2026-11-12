@@ -27,7 +27,8 @@ export default function Game() {
       set: { diff: kid.set.diff, calm: kid.set.calm, sfx: kid.set.sfx, voice: kid.set.voice, twice: kid.set.twice, grade: kid.set.grade, cost: kid.set.cost, maxGames: kid.set.maxGames, maxMin: kid.set.maxMin },
     };
   }, [id]);
-  const inject = `window.__SS_INIT=${JSON.stringify(init).replace(/</g, '\\u003c')};true;`;
+  // The setup is written straight into the page, so it is there before any game code runs.
+  const html = useMemo(() => GAME_HTML.replace('<head>', () => `<head><script>window.__SS_INIT=${JSON.stringify(init).replace(/</g, '\\u003c')};</script>`), [init]);
 
   function onMessage(e: WebViewMessageEvent) {
     let m: any; try { m = JSON.parse(e.nativeEvent.data); } catch { return; }
@@ -42,9 +43,9 @@ export default function Game() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#1e1b4b' }} edges={['top', 'bottom']}>
       <View style={{ flex: 1 }}>
         <WebView
-          source={{ html: GAME_HTML, baseUrl: '' }}
+          key={id}
+          source={{ html, baseUrl: '' }}
           originWhitelist={['*']}
-          injectedJavaScriptBeforeContentLoaded={inject}
           onMessage={onMessage}
           javaScriptEnabled
           mediaPlaybackRequiresUserAction={false}
