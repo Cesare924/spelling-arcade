@@ -6,3 +6,5 @@ ios/
 android/
 *.log
 .env*
+.cx/
+build-log.txt

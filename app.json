@@ -22,7 +22,8 @@
           "photosPermission": "Spelling Stars can read a spelling list from a photo you choose. The photo is read on this phone and is not uploaded.",
           "microphonePermission": false
         }
-      ]
+      ],
+      "./plugins/with-short-native-build.js"
     ],
     "experiments": {
       "typedRoutes": false
