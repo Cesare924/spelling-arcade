@@ -3,6 +3,8 @@ rem Spelling Stars - full native Android build.
 rem Creates the "android" folder (openable in Android Studio) and installs
 rem the app on the running emulator. First run takes 10-20 minutes.
 cd /d "%~dp0"
+rem Let npm accept small version mismatches between packages (common with Expo).
+set "npm_config_legacy_peer_deps=true"
 
 where node >nul 2>nul
 if errorlevel 1 (

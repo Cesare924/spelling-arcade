@@ -2,6 +2,7 @@
 rem Spelling Stars - run on the Android Studio emulator.
 rem Double-click this file. The first run installs packages (a few minutes).
 cd /d "%~dp0"
+set "npm_config_legacy_peer_deps=true"
 
 where node >nul 2>nul
 if errorlevel 1 (
