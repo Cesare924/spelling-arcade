@@ -1,96 +1,163 @@
-// Shared building blocks: colors, screen wrapper, buttons, cards, letter tiles.
+// Shared building blocks: colors, screen wrapper, buttons, cards, tiles, options, sheets.
+// "Bigger text" and "High contrast" settings are applied here for every screen.
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, type ViewStyle, type TextStyle } from 'react-native';
+import { Modal, Pressable, ScrollView, Switch, Text, TextInput, View, type ViewStyle, type TextStyle, type TextInputProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useApp } from '../store/AppContext.tsx';
 
-export const C = {
+const BASE = {
   bg: '#f5f3ff', card: '#ffffff', ink: '#1e1b4b', soft: '#4c4f6b', line: '#ddd6fe',
-  brand: '#7c3aed', brandDark: '#5b21b6', sun: '#f59e0b', good: '#16a34a', goodBg: '#dcfce7',
-  bad: '#dc2626', badBg: '#fee2e2', sky: '#0ea5e9',
+  brand: '#7c3aed', brandDark: '#5b21b6', brandSoft: '#ede9fe', sun: '#f59e0b', sunSoft: '#fef3c7',
+  good: '#16a34a', goodBg: '#dcfce7', bad: '#dc2626', badBg: '#fee2e2', sky: '#0284c7', tile: '#fef3c7',
 };
+const HIGH = {
+  ...BASE, bg: '#ffffff', ink: '#000000', soft: '#111827', line: '#1e1b4b', brand: '#4c1d95', brandDark: '#2e1065',
+  brandSoft: '#ddd6fe', good: '#15803d', bad: '#b91c1c', sky: '#075985',
+};
+export type Palette = typeof BASE;
+/** Default colors (for places outside a kid's settings). */
+export const C = BASE;
+
+export function useLook() {
+  const { kid } = useApp();
+  return { c: kid.set.hc ? HIGH : BASE, f: kid.set.big ? 1.18 : 1, hc: kid.set.hc };
+}
 
 export function Screen({ children, scroll = true }: { children: React.ReactNode; scroll?: boolean }) {
+  const { c } = useLook();
   return (
-    <SafeAreaView style={s.safe} edges={['bottom', 'left', 'right']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={['bottom', 'left', 'right']}>
       {scroll
-        ? <ScrollView contentContainerStyle={s.pad} keyboardShouldPersistTaps="handled">{children}</ScrollView>
-        : <View style={[s.pad, { flex: 1 }]}>{children}</View>}
+        ? <ScrollView contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">{children}</ScrollView>
+        : <View style={{ padding: 16, gap: 12, flex: 1 }}>{children}</View>}
     </SafeAreaView>
   );
 }
 
-type Kind = 'primary' | 'secondary' | 'ghost' | 'good' | 'danger';
-export function Btn({ label, onPress, kind = 'primary', disabled, style, big }: {
-  label: string; onPress: () => void; kind?: Kind; disabled?: boolean; style?: ViewStyle; big?: boolean;
+export type Kind = 'primary' | 'secondary' | 'ghost' | 'good' | 'danger' | 'sky';
+export function Btn({ label, onPress, kind = 'primary', disabled, style, big, small }: {
+  label: string; onPress: () => void; kind?: Kind; disabled?: boolean; style?: ViewStyle; big?: boolean; small?: boolean;
 }) {
-  const bg = { primary: C.brand, secondary: '#ede9fe', ghost: 'transparent', good: C.good, danger: C.bad }[kind];
-  const fg = kind === 'secondary' || kind === 'ghost' ? C.brandDark : '#fff';
+  const { c, f, hc } = useLook();
+  const bg = { primary: c.brand, secondary: c.brandSoft, ghost: 'transparent', good: c.good, danger: c.bad, sky: c.sky }[kind];
+  const fg = kind === 'secondary' || kind === 'ghost' ? c.brandDark : '#fff';
+  const size = (big ? 22 : small ? 15 : 17) * f;
   return (
     <Pressable accessibilityRole="button" accessibilityLabel={label} disabled={disabled} onPress={onPress}
-      style={({ pressed }) => [s.btn, { backgroundColor: bg, opacity: disabled ? .45 : pressed ? .8 : 1 }, big && s.btnBig, style]}>
-      <Text style={[s.btnText, { color: fg }, big && { fontSize: 22 }]}>{label}</Text>
+      style={({ pressed }) => [{
+        backgroundColor: bg, opacity: disabled ? .45 : pressed ? .8 : 1, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
+        paddingVertical: (big ? 18 : small ? 9 : 13) * f, paddingHorizontal: small ? 12 : 18,
+        borderWidth: hc || kind === 'ghost' ? 2 : 0, borderColor: hc ? c.ink : c.line,
+      }, style]}>
+      <Text style={{ color: fg, fontSize: size, fontWeight: '800', textAlign: 'center' }}>{label}</Text>
     </Pressable>
   );
 }
 
 export function Card({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
-  return <View style={[s.card, style]}>{children}</View>;
+  const { c, hc } = useLook();
+  return <View style={[{ backgroundColor: c.card, borderRadius: 18, padding: 16, gap: 10, borderWidth: hc ? 2 : 1, borderColor: c.line }, style]}>{children}</View>;
 }
 export function H({ children, style }: { children: React.ReactNode; style?: TextStyle }) {
-  return <Text style={[s.h, style]}>{children}</Text>;
+  const { c, f } = useLook();
+  return <Text style={[{ fontSize: 20 * f, fontWeight: '900', color: c.ink }, style]}>{children}</Text>;
 }
-export function P({ children, style }: { children: React.ReactNode; style?: TextStyle }) {
-  return <Text style={[s.p, style]}>{children}</Text>;
+export function P({ children, style, small }: { children: React.ReactNode; style?: TextStyle; small?: boolean }) {
+  const { c, f } = useLook();
+  return <Text style={[{ fontSize: (small ? 13.5 : 16) * f, color: c.soft, lineHeight: (small ? 19 : 22) * f }, style]}>{children}</Text>;
 }
 export function Row({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
-  return <View style={[s.row, style]}>{children}</View>;
+  return <View style={[{ flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap' }, style]}>{children}</View>;
+}
+export function Field(props: TextInputProps) {
+  const { c, f } = useLook();
+  return <TextInput placeholderTextColor="#8b8fa8" {...props}
+    style={[{ fontSize: 18 * f, color: c.ink, borderWidth: 2, borderColor: c.line, borderRadius: 12, padding: 12, backgroundColor: '#fff' }, props.style]} />;
 }
 
 /** Tap-to-spell letter tiles. `used` marks tiles already placed. */
 export function Tiles({ tiles, used, onTap }: { tiles: string[]; used: boolean[]; onTap: (i: number) => void }) {
+  const { c, f } = useLook();
   return (
-    <View style={s.tiles}>
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
       {tiles.map((t, i) => (
         <Pressable key={i} disabled={used[i]} onPress={() => onTap(i)} accessibilityLabel={`letter ${t}`}
-          style={({ pressed }) => [s.tile, used[i] && { opacity: .25 }, pressed && { transform: [{ scale: .94 }] }]}>
-          <Text style={s.tileText}>{t}</Text>
+          style={({ pressed }) => [{ width: 48 * f, height: 52 * f, borderRadius: 12, backgroundColor: c.tile, borderWidth: 2, borderColor: c.sun, alignItems: 'center', justifyContent: 'center' },
+            used[i] && { opacity: .25 }, pressed && { transform: [{ scale: .94 }] }]}>
+          <Text style={{ fontSize: 26 * f, fontWeight: '900', color: c.ink }}>{t}</Text>
         </Pressable>
       ))}
     </View>
   );
 }
 
-/** Option chips for settings. */
-export function Chips<T extends string | number>({ value, options, onChange }: {
-  value: T; options: { v: T; label: string }[]; onChange: (v: T) => void;
+/** Row of choices (one selected). */
+export function Chips<T extends string | number | boolean>({ value, options, onChange, label, help }: {
+  value: T; options: { v: T; label: string }[]; onChange: (v: T) => void; label?: string; help?: string;
 }) {
+  const { c, f } = useLook();
   return (
-    <View style={s.chips}>
-      {options.map(o => (
-        <Pressable key={String(o.v)} onPress={() => onChange(o.v)} accessibilityState={{ selected: o.v === value }}
-          style={[s.chip, o.v === value && s.chipOn]}>
-          <Text style={[s.chipText, o.v === value && { color: '#fff' }]}>{o.label}</Text>
-        </Pressable>
-      ))}
+    <View style={{ gap: 6 }}>
+      {label && <Text style={{ fontSize: 16 * f, color: c.ink, fontWeight: '700' }}>{label}</Text>}
+      {help && <Text style={{ fontSize: 13 * f, color: c.soft }}>{help}</Text>}
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        {options.map(o => {
+          const on = o.v === value;
+          return (
+            <Pressable key={String(o.v)} onPress={() => onChange(o.v)} accessibilityRole="radio" accessibilityState={{ selected: on }}
+              style={{ paddingVertical: 8 * f, paddingHorizontal: 14, borderRadius: 999, backgroundColor: on ? c.brand : c.brandSoft, borderWidth: 2, borderColor: on ? c.brandDark : 'transparent' }}>
+              <Text style={{ fontSize: 15 * f, fontWeight: '700', color: on ? '#fff' : c.brandDark }}>{o.label}</Text>
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 }
 
-export const s = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: C.bg },
-  pad: { padding: 16, gap: 12 },
-  btn: { paddingVertical: 13, paddingHorizontal: 18, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  btnBig: { paddingVertical: 18 },
-  btnText: { fontSize: 17, fontWeight: '800' },
-  card: { backgroundColor: C.card, borderRadius: 18, padding: 16, gap: 10, borderWidth: 1, borderColor: C.line },
-  h: { fontSize: 20, fontWeight: '900', color: C.ink },
-  p: { fontSize: 16, color: C.soft, lineHeight: 22 },
-  row: { flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap' },
-  tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
-  tile: { width: 48, height: 52, borderRadius: 12, backgroundColor: '#fef3c7', borderWidth: 2, borderColor: C.sun, alignItems: 'center', justifyContent: 'center' },
-  tileText: { fontSize: 26, fontWeight: '900', color: C.ink },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: '#ede9fe' },
-  chipOn: { backgroundColor: C.brand },
-  chipText: { fontSize: 15, fontWeight: '700', color: C.brandDark },
-});
+export function Toggle({ label, value, onChange, help }: { label: string; value: boolean; onChange: (v: boolean) => void; help?: string }) {
+  const { c, f } = useLook();
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 4, gap: 10 }}>
+      <View style={{ flex: 1 }}>
+        <Text style={{ fontSize: 16 * f, color: c.ink, fontWeight: '600' }}>{label}</Text>
+        {help && <Text style={{ fontSize: 13 * f, color: c.soft }}>{help}</Text>}
+      </View>
+      <Switch value={value} onValueChange={onChange} trackColor={{ true: c.brand, false: '#d1d5db' }} accessibilityLabel={label} />
+    </View>
+  );
+}
+
+/** Bottom sheet style pop-up. */
+export function Sheet({ visible, onClose, children }: { visible: boolean; onClose: () => void; children: React.ReactNode }) {
+  const { c } = useLook();
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <Pressable style={{ flex: 1, backgroundColor: 'rgba(15,10,40,.5)', justifyContent: 'center', padding: 18 }} onPress={onClose}>
+        <Pressable style={{ backgroundColor: c.card, borderRadius: 22, padding: 18, gap: 12, maxHeight: '88%' }} onPress={() => {}}>
+          <ScrollView contentContainerStyle={{ gap: 12 }} keyboardShouldPersistTaps="handled">{children}</ScrollView>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
+
+/** Small header icon button. */
+export function IconBtn({ label, icon, onPress }: { label: string; icon: string; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel={label} hitSlop={10} style={{ paddingHorizontal: 8, paddingVertical: 4 }}>
+      <Text style={{ fontSize: 24 }}>{icon}</Text>
+    </Pressable>
+  );
+}
+
+/** Stat block (number + label). */
+export function Stat({ n, label }: { n: string | number; label: string }) {
+  const { c, f } = useLook();
+  return (
+    <View style={{ alignItems: 'center', minWidth: 90, flexGrow: 1, flexBasis: '28%', paddingVertical: 6 }}>
+      <Text style={{ fontSize: 24 * f, fontWeight: '900', color: c.ink }}>{n}</Text>
+      <Text style={{ color: c.soft, fontSize: 13 * f, textAlign: 'center' }}>{label}</Text>
+    </View>
+  );
+}

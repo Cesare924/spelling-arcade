@@ -2,6 +2,7 @@
 rem Spelling Stars - full native Android build.
 rem Creates the "android" folder (openable in Android Studio) and installs
 rem the app on the running emulator. First run takes 10-20 minutes.
+rem Close the "android" project in Android Studio before running this.
 cd /d "%~dp0"
 rem Let npm accept small version mismatches between packages (common with Expo).
 set "npm_config_legacy_peer_deps=true"
@@ -34,18 +35,13 @@ if not defined JAVA_HOME (
   exit /b 1
 )
 
-if not exist node_modules (
-  echo Installing packages...
-  call npm install || goto failed
-  call npx expo install --fix || goto failed
-)
-if not exist node_modules\expo-dev-client (
-  call npx expo install expo-dev-client || goto failed
-)
+echo Installing packages...
+call npm install || goto failed
+call npx expo install --fix || goto failed
 
 echo.
 echo Creating the android folder...
-call npx expo prebuild --platform android --no-install || goto failed
+call npx expo prebuild --platform android --clean --no-install || goto failed
 
 echo.
 echo Make sure your emulator is running (Android Studio ^> Device Manager ^> Play).

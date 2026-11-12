@@ -112,4 +112,35 @@ test('letter marks', () => {
   assert.deepEqual(letterMarks('ct', 'cat').map(m => m.mark), ['ok', 'bad', 'miss']);
 });
 
+
+import { dayRec, limitReason, addKid, removeKid } from '../src/logic/state.ts';
+import { backupText, readBackup } from '../src/logic/backup.ts';
+import { wordsFromScan } from '../src/logic/scan.ts';
+
+test('daily limits', () => {
+  const k = kidOf(normalizeRoot(null)); k.set.maxGames = 2; dayRec(k).games = 2;
+  assert.match(limitReason(k), /2 games/);
+  k.set.maxGames = 0; k.set.maxMin = 10; dayRec(k).ms = 11 * 60000;
+  assert.match(limitReason(k), /10 min/);
+});
+
+test('add and remove kids', () => {
+  const r = normalizeRoot(null); const p = addKid(r)!;
+  assert.equal(r.profiles.length, 2); assert.notEqual(p.avatar, r.profiles[0].avatar);
+  r.active = p.id; removeKid(r, p.id);
+  assert.equal(r.profiles.length, 1); assert.equal(r.active, r.profiles[0].id);
+});
+
+test('backup round trip and rejects junk', () => {
+  const r = normalizeRoot(null); addWords(kidOf(r), ['zebra'], 'L');
+  const b = readBackup(backupText(r))!;
+  assert.deepEqual(allWords(kidOf(b.r)), ['zebra']); assert.ok(b.savedAt);
+  assert.equal(readBackup('hello'), null); assert.equal(readBackup('{"x":1}'), null);
+});
+
+test('scan text becomes words', () => {
+  const got = wordsFromScan(['Spelling Words  Week 5', '1. Friend 2. night', '3) because, NIGHT', 'Name: ____ Date:'], ['because']);
+  assert.deepEqual(got, ['friend', 'night']);
+});
+
 console.log(`\n${passed} tests passed`);

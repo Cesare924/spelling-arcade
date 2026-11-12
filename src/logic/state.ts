@@ -164,3 +164,26 @@ export function whenText(d: number, s: string) {
   return 'on ' + parseDay(s)!.toLocaleDateString('en-US', { weekday: 'long' });
 }
 export const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
+
+/* ---------- daily game limits ---------- */
+/** Today's game record, reset when the date changes. */
+export function dayRec(k: Kid) { if (k.day.date !== today()) k.day = { date: today(), games: 0, ms: 0 }; return k.day; }
+export function limitReason(k: Kid): string {
+  const d = k.day.date === today() ? k.day : { games: 0, ms: 0 };
+  if (k.set.maxGames && d.games >= k.set.maxGames) return `That's all ${k.set.maxGames} games for today. Come back tomorrow! 🌙`;
+  if (k.set.maxMin && d.ms >= k.set.maxMin * 60000) return `Play time is up for today (${k.set.maxMin} min). Come back tomorrow! 🌙`;
+  return '';
+}
+
+/* ---------- kids ---------- */
+export function addKid(r: Root): Profile | null {
+  if (r.profiles.length >= 8) return null;
+  const id = uid(), used = r.profiles.map(p => p.avatar);
+  const p = { id, name: 'Kid ' + (r.profiles.length + 1), avatar: AVATARS.find(a => !used.includes(a)) || '🦄' };
+  r.profiles.push(p); r.P[id] = normalizeKid({}); return p;
+}
+export function removeKid(r: Root, id: string) {
+  if (r.profiles.length <= 1) return;
+  r.profiles = r.profiles.filter(p => p.id !== id); delete r.P[id];
+  if (r.active === id) r.active = r.profiles[0].id;
+}

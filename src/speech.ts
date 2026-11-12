@@ -54,3 +54,8 @@ export async function sayWord(word: string, set: Settings, sentence?: string) {
   return say(text, set);
 }
 export const stopSpeech = () => Speech.stop();
+
+/** Speech asked for by a game. Plain words repeat when "Say each word twice" is on. */
+export function sayFromGame(text: string, raw: boolean, set: Settings) {
+  return say(!raw && set.twice ? `${text}. ... ${text}.` : text, set);
+}

@@ -2,16 +2,20 @@
 
 The phone-app version of Spelling Stars for Android and iOS, built with Expo and React Native.
 
-## Stage 1 — what's here
-- **Home**: tokens, stars, day streak, upcoming test banner, review-due button.
-- **Practice**: hear & spell (with example sentences, blanks sized to the word), missing letters, unscramble; letter tiles or keyboard; tries, peek, auto-advance on a correct answer, stars per round.
-- **My Words**: weekly lists, whole-year practice, 30 grade-level weeks per grade band, test dates.
-- **Settings**: grade, American male/female voice, speed, input style, tries, mix size, sentences, capitals, bonus tokens, sound.
-- **Spaced review** and **tricky words**, same rules as the web prototype.
-- Saved on the phone (AsyncStorage) in the **same format as the web prototype**, so prototype backups will restore once backup is added.
-- Arcade screen lists the 16 games as "coming soon".
+## What's in the app
+Everything from the web version:
+- **Practice**: spell, unscramble, missing letters; tiles or keyboard; sentence and meaning buttons; peek; auto-advance; stars; spaced review; tricky words; test-date focus.
+- **My Words**: weekly lists, rename, test dates, grade-level lists (30 weeks × 3 bands), quick-start lists, custom sentences, **camera scanning** read on the phone (ML Kit / Apple Vision).
+- **Game Arcade**: all 16 games, favorites, best scores, token cost, daily game and time limits, hidden games, difficulty.
+- **Grown-ups**: kid profiles, PIN (with forgot-PIN check), full settings, progress report, help + FAQ + fix-a-problem checks, first-run setup, backup/restore (file, clipboard, undo) compatible with web backups.
+- **Comfort**: American male/female voices, speed, sound effects, bigger text, high contrast, calmer motion.
 
-Coming in later stages: the 16 games, kid profiles, grown-up PIN, progress report, help, first-run setup, backup/restore, camera scanning (on-device text recognition).
+The games are the original canvas games, bundled with the app and run offline in a WebView
+(`games-web/` → `npm run pack-games` → `src/games/gameHtml.ts`).
+
+## Build for the Android emulator (Windows)
+Keep the project in a short folder like `C:\ss` (Windows path limits). Start the emulator, then run
+`.\build-android.bat` in a terminal in that folder. After a build, `.\start-android.bat` just starts the app server.
 
 ## Run it on your phone (no Mac needed)
 1. Install **Node.js LTS** (nodejs.org) and **Git**.
@@ -26,7 +30,7 @@ Coming in later stages: the 16 games, kid profiles, grown-up PIN, progress repor
 
 ## Checks
 ```
-npm test          # practice rules (16 tests)
+npm test          # app rules (20 tests)
 npm run typecheck
 ```
 

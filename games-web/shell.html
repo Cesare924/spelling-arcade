@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;background:#1e1b4b;font-family:system-ui,-apple-system,Roboto,sans-serif;color:#1e1b4b;touch-action:none}
+#top{position:absolute;left:0;right:0;top:0;height:52px;display:flex;align-items:center;gap:8px;padding:8px 10px;padding-top:max(8px,env(safe-area-inset-top));color:#fff}
+#back{background:rgba(255,255,255,.18);color:#fff;border:0;border-radius:12px;font:700 16px system-ui,sans-serif;padding:9px 12px}
+#score{flex:1;text-align:right;font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#wrap{position:absolute;left:0;right:0;top:52px;bottom:0;display:flex;align-items:center;justify-content:center;padding:6px 6px max(6px,env(safe-area-inset-bottom))}
+#cv{display:block;border-radius:18px;touch-action:none;background:#fff}
+#ov{position:absolute;inset:52px 0 0 0;display:flex;align-items:center;justify-content:center;padding:16px}
+#ov[hidden]{display:none}
+.card{background:rgba(255,255,255,.97);border-radius:22px;padding:20px;text-align:center;max-width:320px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.card h3{margin:4px 0 8px;font-size:24px}
+.card p{margin:6px 0;font-size:16px;line-height:1.35}
+.btn{display:block;width:100%;margin-top:10px;border:0;border-radius:14px;padding:13px;font:800 17px system-ui,sans-serif;color:#fff;background:#7c3aed}
+.btn.green{background:#16a34a}.btn.ghost{background:#ede9fe;color:#5b21b6}
+.muted{color:#4c4f6b}.nb{color:#b45309;font-weight:800}
+</style></head>
+<body>
+<div id="top"><button id="back" aria-label="Back to Arcade">← Arcade</button><div id="score"></div></div>
+<div id="wrap"><canvas id="cv"></canvas></div>
+<div id="ov" hidden></div>
+<script>
+/* ---------- bridge to the app ---------- */
+const INIT=window.__SS_INIT||{id:'derby',set:{diff:'normal',calm:false,sfx:true,voice:true,twice:false,grade:'23',cost:1,maxGames:0,maxMin:0},words:['cat','dog','sun'],sent:{},tokens:5,best:{},day:{games:0,ms:0},title:'Game',em:'🎮'};
+const S={set:INIT.set,tokens:INIT.tokens,best:INIT.best};
+const DAY={games:INIT.day.games,ms:INIT.day.ms};
+function post(m){try{window.ReactNativeWebView.postMessage(JSON.stringify(m));}catch(e){}}
+let msBuf=0;
+function flushMs(){if(msBuf>0){post({t:'ms',ms:Math.round(msBuf)});msBuf=0;}}
+setInterval(flushMs,5000);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)flushMs();});
+
+/* ---------- small helpers the games use ---------- */
+const $=s=>document.querySelector(s);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const plural=(n,w)=>n+' '+w+(n===1?'':'s');
+const norm=w=>String(w||'').trim().toLowerCase().replace(/[’‘]/g,"'");
+const escRe=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const STARTERS={easy:['cat','dog','sun','hat','run','big','red','fish','jump','play']};
+const allWords=()=>INIT.words.slice();
+function builtinSent(w){return INIT.sent[norm(w)]||'';}
+const DF=()=>({easy:.78,normal:1,hard:1.22}[S.set.diff]||1);
+const TOL=()=>({easy:1.35,normal:1,hard:.8}[S.set.diff]||1);
+/* speech goes to the app, which uses the phone's voices */
+function speak(text,onFail,opt){if(!S.set.voice){if(onFail)onFail('muted');return false;}post({t:'speak',text:String(text),raw:!!(opt&&opt.raw)});return true;}
+
+/* ---------- sound effects (Web Audio, same as the web version) ---------- */
+let AC=null;
+function ac(){
+  if(!S.set.sfx)return null;
+  if(!AC){try{AC=new(window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}}
+  if(AC.state==='suspended'){try{AC.resume();}catch(e){}}
+  return AC;
+}
+function tone(f,d,type,vol,when,slide){
+  const a=ac();if(!a)return;
+  const t=a.currentTime+(when||0);
+  const o=a.createOscillator(),g=a.createGain();
+  o.type=type||'sine';o.frequency.setValueAtTime(f,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);
+  g.gain.setValueAtTime(vol||.12,t);g.gain.exponentialRampToValueAtTime(.0008,t+d);
+  o.connect(g);g.connect(a.destination);o.start(t);o.stop(t+d+.03);
+}
+function noise(d,vol,when){
+  const a=ac();if(!a)return;
+  const t=a.currentTime+(when||0);
+  const len=Math.floor(a.sampleRate*d),buf=a.createBuffer(1,len,a.sampleRate),ch=buf.getChannelData(0);
+  for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*(1-i/len);
+  const s=a.createBufferSource(),g=a.createGain();s.buffer=buf;g.gain.value=vol||.15;
+  s.connect(g);g.connect(a.destination);s.start(t);
+}
+const SFX={
+  correct:()=>{tone(523,.13,'triangle',.14);tone(659,.13,'triangle',.14,.1);tone(784,.25,'triangle',.14,.2);},
+  coin:()=>{tone(988,.08,'square',.06);tone(1319,.3,'square',.06,.08);},
+  wrong:()=>tone(240,.3,'sawtooth',.06,0,150),
+  swoosh:()=>noise(.14,.07),
+  hit:()=>{tone(170,.08,'square',.16);noise(.12,.25);},
+  hr:()=>{tone(170,.08,'square',.16);noise(.12,.3);[523,659,784,1047,1319].forEach((f,i)=>tone(f,.2,'triangle',.12,.15+i*.09));noise(1.2,.05,.2);},
+  miss:()=>tone(160,.25,'sawtooth',.05,0,110),
+  tick:()=>tone(420,.06,'square',.07),
+  jump:()=>tone(380,.16,'sine',.12,0,820),
+  bonk:()=>tone(130,.3,'square',.1,0,60),
+  star:()=>tone(1150,.12,'sine',.1,0,1900),
+  pop:()=>{noise(.07,.3);tone(620,.07,'sine',.1,0,180);},
+  nope:()=>tone(210,.15,'triangle',.1),
+  flip:()=>tone(720,.04,'sine',.06),
+  win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.2,'triangle',.12,i*.09))
+};
+function sfx(n){try{SFX[n]&&SFX[n]();}catch(e){}}
+
+/* ---------- engine ---------- */
+const W=360,H=540;
+const cv=$('#cv'),ctx=cv.getContext('2d');
+let G=null,raf=0,last=0;
+function fitCanvas(){
+  const wrap=$('#wrap'),r=wrap.getBoundingClientRect();
+  const w=Math.max(200,Math.min(r.width-12,(r.height-12)*W/H));
+  cv.style.width=w+'px';cv.style.height=(w*H/W)+'px';
+  const dpr=Math.min(2.5,window.devicePixelRatio||1);
+  cv.width=Math.round(w*dpr);cv.height=Math.round(w*H/W*dpr);
+}
+window.addEventListener('resize',fitCanvas);
+function limitReason(){
+  if(S.set.maxGames&&DAY.games>=S.set.maxGames)return `That's all ${S.set.maxGames} games for today. Come back tomorrow! 🌙`;
+  if(S.set.maxMin&&DAY.ms>=S.set.maxMin*60000)return `Play time is up for today (${S.set.maxMin} min). Come back tomorrow! 🌙`;
+  return '';
+}
+function loop(t){
+  const dt=Math.min(.05,Math.max(0,(t-last)/1000));last=t;
+  if(G){
+    if(G.started&&!G.over){
+      G.update(dt);
+      DAY.ms+=dt*1000;msBuf+=dt*1000;
+      if(S.set.maxMin&&DAY.ms>=S.set.maxMin*60000&&!G.over){G.over=true;G.timeUp=true;}
+    }
+    ctx.setTransform(cv.width/W,0,0,cv.height/H,0,0);
+    G.draw(ctx);
+    $('#score').textContent=G.hud();
+    if(G.over&&!G.ended){G.ended=true;endGame();}
+  }
+  raf=requestAnimationFrame(loop);
+}
+function makeGame(id){const g=GAMES[id]();g.id=id;g.started=false;g.ended=false;return g;}
+function overlay(html){const o=$('#ov');o.innerHTML=html;o.hidden=false;}
+function openGame(id){
+  fitCanvas();G=makeGame(id);
+  const lim=limitReason();
+  overlay(`<div class="card"><h3>${INIT.em} ${INIT.title}</h3><p>${G.intro}</p>${lim?`<p class="nb">${lim}</p>`:S.tokens>=S.set.cost?`<button class="btn green" id="ovStart">Start! · ${S.set.cost} 🪙</button>`:`<p class="muted">You need ${plural(S.set.cost,'token')}. Spell words to earn more!</p>`}<button class="btn ghost" id="ovBack">Back to Arcade</button></div>`);
+  const s=$('#ovStart');if(s)s.addEventListener('click',()=>beginGame(id));
+  $('#ovBack').addEventListener('click',exit);
+  last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+}
+function beginGame(id){
+  if(limitReason()||S.tokens<S.set.cost){openGame(id);return;}
+  S.tokens-=S.set.cost;DAY.games++;post({t:'spend',cost:S.set.cost});ac();
+  G=makeGame(id);G.started=true;if(G.begin)G.begin();
+  $('#ov').hidden=true;
+}
+function endGame(){
+  flushMs();
+  const id=G.id,score=Math.floor(G.score);
+  const prev=S.best[id];const nb=prev==null||score>prev;
+  if(nb)S.best[id]=score;
+  post({t:'end',id,score});
+  sfx('win');
+  const lim=limitReason(),cost=S.set.cost;
+  const again=lim?`<p class="nb">${lim}</p>`:S.tokens>=cost?`<button class="btn green" id="ovAgain">Play again · ${cost} 🪙</button>`:`<p class="muted">Out of tokens. Spell more words to earn more!</p>`;
+  overlay(`<div class="card"><div style="font-size:52px">${G.timeUp?'⏰':nb&&prev!=null?'🏆':'🎉'}</div><h3>${G.timeUp?'Time for a break!':(G.endTitle||'Great game!')}</h3><p>Score: <b style="font-size:22px">${score}</b></p><p class="${nb&&prev!=null?'nb':'muted'}">${nb&&prev!=null?'New best score!':'Best: '+S.best[id]}</p>${again}<button class="btn ghost" id="ovArcade">Back to Arcade</button></div>`);
+  const a=$('#ovAgain');if(a)a.addEventListener('click',()=>beginGame(id));
+  $('#ovArcade').addEventListener('click',exit);
+}
+function exit(){flushMs();post({t:'exit'});}
+$('#back').addEventListener('click',exit);
+function cvPt(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height];}
+cv.addEventListener('pointerdown',e=>{
+  e.preventDefault();
+  if(!G||!G.started||G.over)return;
+  try{cv.setPointerCapture(e.pointerId);}catch(err){}
+  const [x,y]=cvPt(e);G.tap(x,y);
+});
+cv.addEventListener('pointerup',()=>{if(G&&G.release)G.release();});
+cv.addEventListener('pointercancel',()=>{if(G&&G.release)G.release();});
+cv.addEventListener('pointermove',e=>{if(!G||!G.started||G.over||!G.move)return;e.preventDefault();const [x,y]=cvPt(e);G.move(x,y);});
+window.addEventListener('keydown',e=>{if(G&&G.started&&!G.over&&G.key)G.key(e.key);});
+</script>
+<script>
+/*__GAMES__*/
+const GAMES={derby:createDerby,unicorn:createUnicorn,balloon:createBalloon,memory:createMemory,icecream:createIceCream,space:createSpace,bonk:createBonk,race:createRace,soccer:createSoccer,hoops:createHoops,catcher:createCatcher,moonrocket:createMoonRocket,scramble:createScramble,snake:createSnake,wheel:createWheel,detective:createDetective};
+openGame(INIT.id);
+post({t:'ready'});
+</script>
+</body></html>
