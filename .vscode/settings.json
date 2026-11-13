@@ -1,0 +1,8 @@
+{
+  "files.exclude": { "**/.cx": true, "**/.expo": true },
+  "search.exclude": { "**/node_modules": true, "android": true, "ios": true, "**/.cx": true, "src/games/gameHtml.ts": true, "games-web/game.html": true },
+  "files.watcherExclude": { "**/node_modules/**": true, "android/**": true, "**/.cx/**": true },
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+  "json.schemaDownload.enable": true
+}

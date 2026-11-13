@@ -13,6 +13,16 @@ Everything from the web version:
 The games are the original canvas games, bundled with the app and run offline in a WebView
 (`games-web/` → `npm run pack-games` → `src/games/gameHtml.ts`).
 
+## Working in VS Code
+Open the `C:\ss` folder (File > Open Folder) and install the recommended extensions when asked.
+Everything runs from **Terminal > Run Task**:
+- **Build & install on Android** (Ctrl+Shift+B) after icon or package changes
+- **Start app** for everyday work; press `r` to reload, `j` for the debugger
+- **Run tests**, **Check types**, **Pack games**, **Save build log**
+
+Android Studio stays installed for the Android SDK and emulator; start emulators from its Device Manager
+or the "Android iOS Emulator" extension (Ctrl+Shift+P > Emulator).
+
 ## Build for the Android emulator (Windows)
 Keep the project in a short folder like `C:\ss` (Windows path limits). Start the emulator, then run
 `.\build-android.bat` in a terminal in that folder. After a build, `.\start-android.bat` just starts the app server.
