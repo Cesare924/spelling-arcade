@@ -11,10 +11,23 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.cesare924.spellingstars"
+      "package": "com.cesare924.spellingstars",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon/adaptive-foreground.png",
+        "backgroundImage": "./assets/icon/adaptive-background.png",
+        "backgroundColor": "#5b21b6"
+      }
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/icon/splash.png",
+          "imageWidth": 240,
+          "backgroundColor": "#6d28d9"
+        }
+      ],
       [
         "expo-image-picker",
         {
@@ -27,6 +40,7 @@
     ],
     "experiments": {
       "typedRoutes": false
-    }
+    },
+    "icon": "./assets/icon/icon.png"
   }
 }
