@@ -4,8 +4,8 @@ import type { Band } from '../data/gradeLists.ts';
 
 export type GameId =
   | 'derby' | 'race' | 'soccer' | 'hoops' | 'unicorn' | 'balloon' | 'catcher' | 'moonrocket'
-  | 'scramble' | 'snake' | 'wheel' | 'detective' | 'memory' | 'icecream' | 'space' | 'bonk';
-export const GAME_IDS: GameId[] = ['derby', 'race', 'soccer', 'hoops', 'unicorn', 'balloon', 'catcher', 'moonrocket',
+  | 'scramble' | 'snake' | 'wheel' | 'detective' | 'memory' | 'icecream' | 'space' | 'bonk' | 'fieldgoal';
+export const GAME_IDS: GameId[] = ['derby', 'race', 'soccer', 'hoops', 'fieldgoal', 'unicorn', 'balloon', 'catcher', 'moonrocket',
   'scramble', 'snake', 'wheel', 'detective', 'memory', 'icecream', 'space', 'bonk'];
 
 export interface Settings {

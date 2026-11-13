@@ -1188,3 +1188,115 @@ function createDetective(){
   return g;
 }
 
+/* ===== GAME 17: Field Goal Frenzy (American football) ===== */
+function createFieldGoal(){
+  const BX=180,BY=468,DIST=[20,25,25,30,30,35,40,40,45,50];
+  const g={over:false,score:0,t:0,kick:0,total:DIST.length,good:0,state:'aim',ang:0,angT:Math.random()*6,pow:0,powT:0,wind:0,timer:0,ball:null,parts:[],pops:[],crowd:[],flash:0};
+  for(let i=0;i<90;i++)g.crowd.push({x:Math.random()*W,y:44+Math.random()*48,c:['#f87171','#60a5fa','#fbbf24','#34d399','#a78bfa','#fff','#fb923c'][i%7],ph:Math.random()*6});
+  g.intro='Kick it through the yellow posts!<br><b>Tap once</b> to lock your aim when the dashed line turns green. It already counts the 💨 wind!<br><b>Tap again</b> to kick when the power bar passes the line.<br>10 kicks that get longer. Field goal = 3 points, 40+ yards = bonus!';
+  g.hud=()=>`🏈 Kick ${Math.min(g.kick+1,g.total)}/${g.total} · ✅ ${g.good} good · ⭐ ${g.score}`;
+  g.endTitle='What a kicker!';
+  const yards=()=>DIST[Math.min(g.kick,g.total-1)];
+  // Goalpost size and place for the current distance (farther = smaller and higher).
+  function post(){
+    const d=yards(),f=(d-20)/30,s=1.05-f*.5,baseY=236-f*62;
+    return {d,s,baseY,barY:baseY-34*s,topY:baseY-112*s,hw:46*s*TOL()};
+  }
+  const need=()=>.3+(yards()-20)/30*.45;               // power needed to clear the bar
+  function newKick(){
+    g.state='aim';g.ball=null;g.angT=Math.random()*6;g.pow=0;g.powT=0;
+    const d=yards();g.wind=d<=20?0:Math.round(rnd(-1,1)*(4+d/5));   // mph, minus = blowing left
+  }
+  newKick();
+  // Where the ball ends up sideways at the posts for an aim angle (wind included).
+  function landX(ang){const P=post();return BX+Math.tan(ang)*(BY-P.barY)*.95+g.wind*2.1*P.s*(P.d/30);}
+  g.tap=()=>{
+    if(g.state==='aim'){g.state='power';sfx('tick');return;}
+    if(g.state!=='power')return;
+    const P=post(),x=landX(g.ang),off=Math.abs(x-BX),p=g.pow,nd=need();
+    let res;
+    if(p<nd)res='short';
+    else if(off<P.hw-6)res='good';
+    else if(off<P.hw+6)res='doink';
+    else res='wide';
+    const high=res==='short'?P.barY+18:P.barY-30*P.s-(p-nd)*90*P.s;
+    g.ball={t:0,dur:1.15,x0:BX,y0:BY,x1:x,y1:high,res,s:P.s,spin:0};
+    g.state='flight';g.kick++;sfx('hit');
+  };
+  g.update=dt=>{
+    g.t+=dt;stepParts(g.parts,dt,240);stepPops(g.pops,dt);g.flash=Math.max(0,g.flash-dt);
+    if(g.state==='aim'){g.angT+=dt*1.7*DF();g.ang=Math.sin(g.angT)*.42;}
+    else if(g.state==='power'){g.powT+=dt*.85*DF();const k=g.powT%2;g.pow=k<1?k:2-k;}
+    else if(g.state==='flight'){
+      const b=g.ball;b.t+=dt;b.spin+=dt*9;
+      if(b.t>=b.dur){
+        const P=post(),d=P.d;
+        if(b.res==='good'){
+          const pts=3+(d>=50?2:d>=40?1:0);g.score+=pts;g.good++;
+          addPop(g.pops,(d>=50?'LONG BOMB! ':'IT\'S GOOD! ')+'+'+pts,180,260,'#fde047',d>=50?30:36);
+          sfx('hr');burst(g.parts,b.x1,b.y1,['#fde047','#fff','#f97316','#60a5fa'],30,220);g.flash=1;
+        }else if(b.res==='doink'){addPop(g.pops,'DOINK! Off the post',180,260,'#e5e7eb',28);sfx('bonk');}
+        else if(b.res==='short'){addPop(g.pops,'Short! More power',180,260,'#fca5a5',30);sfx('miss');}
+        else{addPop(g.pops,(b.x1<BX?'Wide left!':'Wide right!'),180,260,'#fca5a5',32);sfx('miss');}
+        g.state='result';g.timer=1.5;
+      }
+    }else if(g.state==='result'){
+      g.timer-=dt;const b=g.ball;
+      if(b&&b.res!=='good'){b.y1+=dt*120;}               // a missed ball drops
+      if(g.timer<=0){if(g.kick>=g.total){g.over=true;return;}newKick();}
+    }
+  };
+  function goalpost(c,P){
+    c.strokeStyle='#facc15';c.lineCap='round';
+    c.lineWidth=Math.max(3,7*P.s);c.beginPath();c.moveTo(BX,P.baseY+30*P.s);c.lineTo(BX,P.barY);c.stroke();
+    c.lineWidth=Math.max(3,6*P.s);c.beginPath();c.moveTo(BX-P.hw,P.barY);c.lineTo(BX+P.hw,P.barY);
+    c.moveTo(BX-P.hw,P.barY);c.lineTo(BX-P.hw,P.topY);c.moveTo(BX+P.hw,P.barY);c.lineTo(BX+P.hw,P.topY);c.stroke();
+    c.fillStyle='#ef4444';for(const sx of [-1,1]){c.beginPath();c.moveTo(BX+sx*P.hw,P.topY);c.lineTo(BX+sx*P.hw+sx*10*P.s,P.topY+5*P.s);c.lineTo(BX+sx*P.hw,P.topY+10*P.s);c.fill();}
+  }
+  g.draw=c=>{
+    const P=post();
+    const sky=c.createLinearGradient(0,0,0,120);sky.addColorStop(0,'#1e3a8a');sky.addColorStop(1,'#3b82f6');c.fillStyle=sky;c.fillRect(0,0,W,120);
+    const party=g.flash>0;
+    for(const p of g.crowd){const bob=Math.abs(Math.sin(g.t*(party?14:3)+p.ph))*(party?6:1.4);c.fillStyle=p.c;c.beginPath();c.arc(p.x,p.y-bob,4,0,7);c.fill();}
+    c.fillStyle='#e2e8f0';c.fillRect(0,100,W,12);c.fillStyle='#1e3a8a';c.font='700 9px Fredoka, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('🏈 SPELLING STARS BOWL 🏈',180,106);
+    // field in perspective
+    const top=112;
+    for(let i=0;i<12;i++){const y0=top+Math.pow(i/12,1.6)*(H-top),y1=top+Math.pow((i+1)/12,1.6)*(H-top);c.fillStyle=i%2?'#16a34a':'#22c55e';c.fillRect(0,y0,W,y1-y0+1);}
+    c.strokeStyle='rgba(255,255,255,.75)';c.lineWidth=2;
+    for(let i=0;i<=12;i++){const y=top+Math.pow(i/12,1.6)*(H-top);c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke();}
+    c.lineWidth=3;c.beginPath();c.moveTo(150,top);c.lineTo(20,H);c.moveTo(210,top);c.lineTo(340,H);c.stroke();
+    goalpost(c,P);
+    // wind flag
+    c.fillStyle='rgba(15,23,42,.6)';rr(c,8,124,112,30,10);c.fill();
+    c.fillStyle='#fff';c.font='700 14px Fredoka, sans-serif';c.textAlign='left';
+    c.fillText(g.wind===0?'💨 No wind':`💨 ${g.wind<0?'←':'→'} ${Math.abs(g.wind)} mph`,16,139);
+    c.fillStyle='rgba(15,23,42,.6)';rr(c,W-104,124,96,30,10);c.fill();c.fillStyle='#fde047';c.textAlign='center';c.fillText(`${P.d} yards`,W-56,139);
+    // kicker's tee and aiming guide
+    if(g.state==='aim'||g.state==='power'){
+      const lx=landX(g.ang),hit=Math.abs(lx-BX)<P.hw-6;
+      c.save();c.setLineDash([8,8]);c.lineDashOffset=-g.t*30;c.lineWidth=4;c.lineCap='round';
+      c.strokeStyle=hit?'rgba(74,222,128,.9)':'rgba(255,255,255,.6)';
+      c.beginPath();for(let i=0;i<=30;i++){const q=i/30,x=BX+(lx-BX)*q*q*.4+(lx-BX)*q*.6,y=BY+(P.barY-BY)*q-Math.sin(q*Math.PI)*60;if(i)c.lineTo(x,y);else c.moveTo(x,y);}c.stroke();
+      c.restore();
+      c.fillStyle=hit?'#4ade80':'#fff';c.beginPath();c.arc(lx,P.barY-14*P.s,5,0,7);c.fill();
+    }
+    if(g.state==='power'){
+      const x=W-36,y=230,h=200,nd=need();
+      c.fillStyle='rgba(15,23,42,.65)';rr(c,x-14,y-10,28,h+20,10);c.fill();
+      const col=g.pow>=nd?'#4ade80':'#f97316';c.fillStyle=col;rr(c,x-8,y+h*(1-g.pow),16,h*g.pow,6);c.fill();
+      c.strokeStyle='#fde047';c.lineWidth=3;c.beginPath();c.moveTo(x-18,y+h*(1-nd));c.lineTo(x+18,y+h*(1-nd));c.stroke();
+      c.fillStyle='#fff';c.font='700 12px Fredoka, sans-serif';c.textAlign='center';c.fillText('POWER',x,y-20);
+    }
+    c.fillStyle='#f97316';c.beginPath();c.moveTo(BX-9,BY+20);c.lineTo(BX+9,BY+20);c.lineTo(BX,BY+6);c.fill();
+    emo(c,'🧍',BX-46,BY-6,52);
+    const b=g.ball;
+    if(b){const q=Math.min(1,b.t/b.dur),e=1-Math.pow(1-q,1.6);
+      const x=b.x0+(b.x1-b.x0)*e,y=b.y0+(b.y1-b.y0)*e-Math.sin(q*Math.PI)*90,sz=34-(34-18*b.s)*q;
+      c.save();c.translate(x,y);c.rotate(b.spin);emo(c,'🏈',0,0,sz);c.restore();}
+    else emo(c,'🏈',BX,BY,34);
+    if(g.state==='aim'){c.fillStyle='rgba(255,255,255,.85)';c.font='700 15px Fredoka, sans-serif';c.textAlign='center';c.fillText('Tap to lock your aim',180,BY+50);}
+    if(g.state==='power'){c.fillStyle='rgba(255,255,255,.85)';c.font='700 15px Fredoka, sans-serif';c.textAlign='center';c.fillText('Tap to kick! Pass the yellow line',180,BY+50);}
+    drawParts(c,g.parts);drawPops(c,g.pops);
+  };
+  return g;
+}

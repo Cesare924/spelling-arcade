@@ -2,6 +2,7 @@
 import type { GameId } from '../logic/state.ts';
 
 export const GAMES: Record<GameId, { em: string; title: string; desc: string }> = {
+  fieldgoal: { em: '🏈', title: 'Field Goal Frenzy', desc: 'Aim, beat the wind and kick it through the posts!' },
   derby: { em: '⚾', title: 'Home Run Derby', desc: 'Time your swing and smash home runs!' },
   unicorn: { em: '🦄', title: 'Unicorn Rainbow Dash', desc: 'Jump, dodge storms and catch stars!' },
   balloon: { em: '🎈', title: 'Balloon Spell Pop', desc: 'Pop letters to spell your words!' },
