@@ -1,0 +1,61 @@
+{
+  // Run any of these from Terminal > Run Task (or Ctrl+Shift+B for the build).
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build & install on Android",
+      "detail": "Rebuilds the native app and installs it on the emulator or your phone. Needed after icon or package changes.",
+      "type": "shell",
+      "command": ".\\build-android.bat",
+      "options": { "shell": { "executable": "cmd.exe", "args": ["/d", "/c"] } },
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start app",
+      "detail": "Starts the app server. Open Spelling Stars on the phone or emulator. Press r in the terminal to reload, j for the debugger.",
+      "type": "shell",
+      "command": "npx expo start --dev-client",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Start app on Android",
+      "detail": "Starts the app server and opens the app on the running emulator or connected phone.",
+      "type": "shell",
+      "command": "npx expo start --dev-client --android",
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Run tests",
+      "detail": "Checks the app's rules (practice, review, backups, scanning).",
+      "type": "shell",
+      "command": "npm test",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Check types",
+      "detail": "Looks for code mistakes TypeScript can catch.",
+      "type": "shell",
+      "command": "npm run typecheck",
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "Pack games",
+      "detail": "Run after editing games-web/games.js so the app picks up the change.",
+      "type": "shell",
+      "command": "npm run pack-games",
+      "problemMatcher": []
+    },
+    {
+      "label": "Save build log",
+      "detail": "Re-runs the Android build and saves the output to build-log.txt (for Claude to read).",
+      "type": "shell",
+      "command": ".\\build-log.bat",
+      "options": { "shell": { "executable": "cmd.exe", "args": ["/d", "/c"] } },
+      "problemMatcher": []
+    }
+  ]
+}

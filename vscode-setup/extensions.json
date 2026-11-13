@@ -1,0 +1,8 @@
+{
+  // VS Code offers to install these when you open the project.
+  "recommendations": [
+    "expo.vscode-expo-tools",
+    "msjsdiag.vscode-react-native",
+    "DiemasMichiels.emulate"
+  ]
+}
