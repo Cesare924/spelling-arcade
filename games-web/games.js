@@ -633,11 +633,18 @@ function createSoccer(){
   g.hud=()=>`⚽ Kick ${Math.min(g.kick+(g.state==='aim'?1:0),g.total)}/${g.total} · 🥅 ${plural(g.goals,'goal')} · ⭐ ${g.score}`;
   g.endTitle='Great shooting!';
   const reach=()=>30/TOL();
+  // The result is decided when the ball is kicked, then the dive is drawn to match it:
+  // a save ends with the ball in the goalie's glove, a goal ends with the glove clearly short.
   g.tap=()=>{
     if(g.state!=='aim')return;
     g.state='shot';g.kick++;sfx('hit');
-    g.ball={t:0,dur:.5/DF(),tx:g.aimX,ty:rnd(GT+22,GB-26)};
-    g.react=.18/DF();
+    const dur=.5/DF(),react=.18/DF(),tx=g.aimX,ty=rnd(GT+22,GB-26);
+    const dir=Math.sign(tx-g.kx)||1,move=Math.min(Math.abs(tx-g.kx),165*DF()*(dur-react));
+    const kEnd=g.kx+dir*move,saved=Math.abs(kEnd-tx)<reach();
+    const sx=kEnd+dir*12,sy=GB-58;                      // diving shoulder
+    let gx=tx,gy=ty;                                     // glove target
+    if(!saved){const dx=tx-sx,dy=ty-sy,len=Math.hypot(dx,dy)||1,armLen=Math.min(len-26,30);gx=sx+dx/len*armLen;gy=sy+dy/len*armLen;}
+    g.ball={t:0,dur,tx,ty,dir,saved};g.react=react;g.k0=g.kx;g.kEnd=kEnd;g.glove={x:gx,y:gy};
   };
   g.update=dt=>{
     g.t+=dt;stepParts(g.parts,dt,250);stepPops(g.pops,dt);
@@ -648,10 +655,10 @@ function createSoccer(){
       g.kx+=(g.ktx-g.kx)*Math.min(1,dt*4);g.dive=Math.max(0,g.dive-dt*3);
     }else if(g.state==='shot'){
       const b=g.ball;b.t+=dt;
-      if(b.t>g.react){const dir=Math.sign(b.tx-g.kx);g.kx+=dir*Math.min(Math.abs(b.tx-g.kx),dt*165*DF());g.dive=Math.min(1,g.dive+dt*5);}
+      if(b.t>g.react){const q=Math.min(1,(b.t-g.react)/(b.dur-g.react));g.kx=g.k0+(g.kEnd-g.k0)*q;g.dive=q;}
       if(b.t>=b.dur){
-        const saved=Math.abs(g.kx-b.tx)<reach();
-        if(saved){addPop(g.pops,'SAVED!',180,220,'#fca5a5',38);sfx('bonk');}
+        const saved=b.saved;g.kx=g.kEnd;g.dive=1;
+        if(saved){addPop(g.pops,'SAVED!',180,220,'#fca5a5',38);sfx('bonk');b.bx=b.tx;b.by=b.ty;b.vx=-b.dir*rnd(60,110);b.vy=-60;}
         else{
           g.goals++;let pts=3;const corner=Math.abs(b.tx-180)>92;if(corner)pts++;
           g.score+=pts;addPop(g.pops,corner?'TOP CORNER! +4':'GOAL! +3',180,220,'#fde047',corner?34:40);sfx('hr');
@@ -661,19 +668,27 @@ function createSoccer(){
       }
     }else if(g.state==='result'){
       g.timer-=dt;g.party=Math.max(0,(g.party||0)-dt);
-      if(g.timer<=0){if(g.kick>=g.total){g.over=true;return;}g.state='aim';g.ball=null;g.dive=0;}
+      const b=g.ball;if(b&&b.saved&&g.timer<1.1){b.bx+=b.vx*dt;b.by+=b.vy*dt;b.vy+=420*dt;}
+      if(g.timer<=0){if(g.kick>=g.total){g.over=true;return;}g.state='aim';g.ball=null;g.dive=0;g.glove=null;}
     }
   };
   function keeper(c){
-    const x=g.kx,y=GB-6,d=g.dive,dir=g.ball?Math.sign(g.ball.tx-x)||1:0;
-    c.save();c.translate(x,y);c.rotate(dir*d*1.1);
+    const x=g.kx,y=GB-6,d=g.dive,b=g.ball,dir=b?b.dir:0;
+    c.save();c.translate(x,y);c.rotate(dir*d*.18);         // small lean only
     c.fillStyle='#1f2937';c.fillRect(-9,-22,7,22);c.fillRect(2,-22,7,22);
     c.fillStyle='#facc15';rr(c,-14,-58,28,38,8);c.fill();
-    c.strokeStyle='#facc15';c.lineWidth=8;c.lineCap='round';c.beginPath();c.moveTo(-12,-52);c.lineTo(-30,-64-d*10);c.moveTo(12,-52);c.lineTo(30,-64-d*10);c.stroke();
-    c.fillStyle='#22c55e';c.beginPath();c.arc(-31,-66-d*10,6,0,7);c.arc(31,-66-d*10,6,0,7);c.fill();
     c.fillStyle='#f5c9a0';c.beginPath();c.arc(0,-70,10,0,7);c.fill();
     c.fillStyle='#111827';c.beginPath();c.arc(0,-74,10,Math.PI,0);c.fill();
     c.restore();
+    // Arms in screen space, so the glove is drawn exactly where the save is decided.
+    const arm=(sx,sy,gx,gy)=>{c.strokeStyle='#facc15';c.lineWidth=8;c.lineCap='round';c.beginPath();c.moveTo(sx,sy);c.lineTo(gx,gy);c.stroke();
+      c.fillStyle='#22c55e';c.beginPath();c.arc(gx,gy,7,0,7);c.fill();c.strokeStyle='#14532d';c.lineWidth=1.5;c.stroke();};
+    const restL={x:x-30,y:y-64},restR={x:x+30,y:y-64};
+    if(b&&g.glove&&dir){
+      const sx=x+dir*12,sy=y-52,q=d*d*(3-2*d),rest=dir>0?restR:restL;
+      arm(x-dir*12,sy,x-dir*28,y-60);                       // other arm stays up
+      arm(sx,sy,rest.x+(g.glove.x-rest.x)*q,rest.y+(g.glove.y-rest.y)*q);
+    }else{arm(x-12,y-52,restL.x,restL.y);arm(x+12,y-52,restR.x,restR.y);}
   }
   g.draw=c=>{
     c.fillStyle='#1e3a8a';c.fillRect(0,0,W,110);
@@ -688,6 +703,10 @@ function createSoccer(){
     for(let x=GL;x<=GR;x+=14){c.beginPath();c.moveTo(x,GT);c.lineTo(x,GB);c.stroke();}
     for(let y=GT;y<=GB;y+=14){c.beginPath();c.moveTo(GL,y);c.lineTo(GR,y);c.stroke();}
     c.fillStyle='#fff';c.fillRect(GL-6,GT-6,GR-GL+12,7);c.fillRect(GL-6,GT-6,7,GB-GT+6);c.fillRect(GR-1,GT-6,7,GB-GT+6);
+    const b0=g.ball,p0=b0?Math.min(1,b0.t/b0.dur):0;
+    const ballPos=()=>{const e=1-Math.pow(1-p0,2);return {x:BALL0.x+(b0.tx-BALL0.x)*e,y:BALL0.y+(b0.ty-BALL0.y)*e-Math.sin(p0*Math.PI)*30,s:34-16*p0};};
+    // A goal passes the keeper into the net (drawn behind him); a save ends in his glove (drawn on top).
+    if(b0&&!b0.saved&&p0>.6){const q=ballPos();emo(c,'⚽',q.x,q.y,q.s);}
     keeper(c);
     if(g.state==='aim'){
       const ay=(GT+GB)/2;c.strokeStyle='#ef4444';c.lineWidth=4;c.beginPath();c.arc(g.aimX,ay,16,0,7);c.stroke();c.beginPath();c.arc(g.aimX,ay,6,0,7);c.stroke();
@@ -695,9 +714,10 @@ function createSoccer(){
       emo(c,'⚽',BALL0.x,BALL0.y,34);
       c.fillStyle='#f5c9a0';
     }
-    if(g.ball){const b=g.ball,p=Math.min(1,b.t/b.dur),e=1-Math.pow(1-p,2);
-      const x=BALL0.x+(b.tx-BALL0.x)*e,y=BALL0.y+(b.ty-BALL0.y)*e-Math.sin(p*Math.PI)*30;
-      emo(c,'⚽',x,y,34-16*p);}
+    if(b0){
+      if(b0.saved&&g.state==='result')emo(c,'⚽',b0.bx,b0.by,18);
+      else if(b0.saved||p0<=.6){const q=ballPos();emo(c,'⚽',q.x,q.y,q.s);}
+    }
     drawParts(c,g.parts);drawPops(c,g.pops);
   };
   return g;
@@ -705,9 +725,11 @@ function createSoccer(){
 
 /* ===== GAME 10: Hoop Shot (basketball) ===== */
 function createHoops(){
-  const HY=150,BALLX=180,BALLY=480;
+  const HY=150,BALLX=120,BALLY=480,RIMX=180,ARC=150;
+  // Where the ball is at time p (0..1) of the shot: a real arc that drops into the rim at RIMX.
+  const shotPt=p=>({x:BALLX+(RIMX-BALLX)*p,y:BALLY+(HY-BALLY)*p-Math.sin(p*Math.PI)*ARC});
   const g={over:false,score:0,t:0,time:45,hx:180,hp:Math.random()*6,ball:null,made:0,streak:0,parts:[],pops:[],shots:0};
-  g.intro='The hoop slides back and forth. <b>Tap to shoot</b> so the ball gets there when the hoop is in the middle! Swish = 3 points. Make 3 in a row to catch fire 🔥 for double points. 45 seconds!';
+  g.intro='The hoop slides back and forth. Follow the dashed aiming arc: <b>tap to shoot</b> when it turns green, so the hoop is there when the ball arrives! Swish = 3 points. Make 3 in a row to catch fire 🔥 for double points. 45 seconds!';
   g.hud=()=>`🏀 ${plural(g.made,'basket')} · ⏱ ${Math.ceil(g.time)}s · ⭐ ${g.score}${g.streak>=3?' 🔥':''}`;
   g.endTitle='Buzzer! Great game!';
   const hoopSpeed=()=>(1.3+Math.min(1.6,g.made*.08))*DF();
@@ -719,10 +741,10 @@ function createHoops(){
     if(b){
       b.t+=dt;
       if(b.phase==='up'&&b.t>=b.dur){
-        const d=Math.abs(g.hx-BALLX),T=TOL();
+        const d=Math.abs(g.hx-RIMX),T=TOL();
         if(d<12*T){b.phase='in';b.swish=true;}
         else if(d<28*T){b.phase='in';b.swish=false;}
-        else{b.phase='miss';b.vx=(BALLX>g.hx?1:-1)*rnd(120,200);b.vy=-120;b.x=BALLX;b.y=HY;}
+        else{b.phase='miss';b.vx=(RIMX>g.hx?1:-1)*rnd(120,200);b.vy=-120;b.x=RIMX;b.y=HY;}
         b.t2=0;
         if(b.phase==='in'){
           g.made++;g.streak++;const fire=g.streak>=3;let pts=(b.swish?3:2)*(fire?2:1);g.score+=pts;
@@ -755,9 +777,20 @@ function createHoops(){
     const drawBall=(bx,by,s)=>emo(c,'🏀',bx,by,s);
     if(b&&b.phase==='in'){const p=Math.min(1,b.t2/.45);drawBall(x,HY+p*50,30);}
     c.strokeStyle='#f97316';c.lineWidth=4;c.beginPath();c.ellipse(x,HY+4,24,7,0,0,7);c.stroke();
-    if(b&&b.phase==='up'){const p=Math.min(1,b.t/b.dur);const y=BALLY+(HY-BALLY)*p-Math.sin(p*Math.PI)*90;drawBall(BALLX,y,46-16*p);}
+    if(b&&b.phase==='up'){const p=Math.min(1,b.t/b.dur),q=shotPt(p);drawBall(q.x,q.y,46-16*p);}
     if(b&&b.phase==='miss')drawBall(b.x,b.y,30);
-    if(!b){drawBall(BALLX,BALLY,46);c.fillStyle='rgba(255,255,255,.5)';c.font='600 14px Fredoka, sans-serif';c.fillText('tap to shoot',BALLX,BALLY+38);}
+    if(!b){
+      // Aiming guide: the ball's path as a see-through dashed arc. It turns green when the
+      // hoop will be under the rim target by the time the ball gets there.
+      const future=180+Math.sin(g.hp+.62*hoopSpeed())*115,d=Math.abs(future-RIMX),T=TOL();
+      const col=d<12*T?'rgba(74,222,128,.9)':d<28*T?'rgba(253,224,71,.85)':'rgba(255,255,255,.55)';
+      c.save();c.setLineDash([9,9]);c.lineDashOffset=-g.t*30;c.lineWidth=4;c.lineCap='round';c.strokeStyle=col;
+      c.beginPath();for(let i=0;i<=40;i++){const q=shotPt(.06+i/40*.94);if(i)c.lineTo(q.x,q.y);else c.moveTo(q.x,q.y);}c.stroke();
+      c.setLineDash([5,6]);c.lineWidth=2.5;c.beginPath();c.ellipse(RIMX,HY+4,24,7,0,0,7);c.stroke();
+      c.restore();
+      drawBall(BALLX,BALLY,46);c.fillStyle='rgba(255,255,255,.6)';c.font='600 14px Fredoka, sans-serif';c.textAlign='center';
+      c.fillText(d<12*T?'shoot now!':'tap to shoot',BALLX,BALLY+38);
+    }
     if(g.streak>=3){c.globalAlpha=.25+.15*Math.sin(g.t*10);c.fillStyle='#f97316';c.fillRect(0,0,W,6);c.fillRect(0,H-6,W,6);c.globalAlpha=1;}
     drawParts(c,g.parts);drawPops(c,g.pops);
   };
