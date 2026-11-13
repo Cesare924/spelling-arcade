@@ -39,7 +39,7 @@
       "label": "Check types",
       "detail": "Looks for code mistakes TypeScript can catch.",
       "type": "shell",
-      "command": "npx tsc --noEmit",
+      "command": "npm run typecheck",
       "problemMatcher": "$tsc"
     },
     {
