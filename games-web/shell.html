@@ -112,17 +112,23 @@ function limitReason(){
   if(S.set.maxMin&&DAY.ms>=S.set.maxMin*60000)return `Play time is up for today (${S.set.maxMin} min). Come back tomorrow! 🌙`;
   return '';
 }
+/* a bug in one game should never freeze the screen: log it and keep the loop running */
+let errCount=0;
+function reportErr(e){if(++errCount<=3)console.error('game error',G&&G.id,e&&e.message);if(errCount>300&&G&&!G.over){G.over=true;}}
+/* score bar: only touch the page when the text changes, and shrink the font to fit narrow phones */
+let hudText='';
+function setHud(t){if(t===hudText)return;hudText=t;const el=$('#score');el.textContent=t;let f=15;el.style.fontSize=f+'px';while(el.scrollWidth>el.clientWidth&&f>10){f--;el.style.fontSize=f+'px';}}
 function loop(t){
   const dt=Math.min(.05,Math.max(0,(t-last)/1000));last=t;
   if(G){
     if(G.started&&!G.over){
-      G.update(dt);
+      try{G.update(dt);}catch(e){reportErr(e);}
       DAY.ms+=dt*1000;msBuf+=dt*1000;
       if(S.set.maxMin&&DAY.ms>=S.set.maxMin*60000&&!G.over){G.over=true;G.timeUp=true;}
     }
     ctx.setTransform(cv.width/W,0,0,cv.height/H,0,0);
-    G.draw(ctx);
-    $('#score').textContent=G.hud();
+    try{G.draw(ctx);}catch(e){reportErr(e);}
+    setHud(G.hud());
     if(G.over&&!G.ended){G.ended=true;endGame();}
   }
   raf=requestAnimationFrame(loop);

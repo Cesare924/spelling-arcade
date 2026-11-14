@@ -112,17 +112,23 @@ function limitReason(){
   if(S.set.maxMin&&DAY.ms>=S.set.maxMin*60000)return `Play time is up for today (${S.set.maxMin} min). Come back tomorrow! 🌙`;
   return '';
 }
+/* a bug in one game should never freeze the screen: log it and keep the loop running */
+let errCount=0;
+function reportErr(e){if(++errCount<=3)console.error('game error',G&&G.id,e&&e.message);if(errCount>300&&G&&!G.over){G.over=true;}}
+/* score bar: only touch the page when the text changes, and shrink the font to fit narrow phones */
+let hudText='';
+function setHud(t){if(t===hudText)return;hudText=t;const el=$('#score');el.textContent=t;let f=15;el.style.fontSize=f+'px';while(el.scrollWidth>el.clientWidth&&f>10){f--;el.style.fontSize=f+'px';}}
 function loop(t){
   const dt=Math.min(.05,Math.max(0,(t-last)/1000));last=t;
   if(G){
     if(G.started&&!G.over){
-      G.update(dt);
+      try{G.update(dt);}catch(e){reportErr(e);}
       DAY.ms+=dt*1000;msBuf+=dt*1000;
       if(S.set.maxMin&&DAY.ms>=S.set.maxMin*60000&&!G.over){G.over=true;G.timeUp=true;}
     }
     ctx.setTransform(cv.width/W,0,0,cv.height/H,0,0);
-    G.draw(ctx);
-    $('#score').textContent=G.hud();
+    try{G.draw(ctx);}catch(e){reportErr(e);}
+    setHud(G.hud());
     if(G.over&&!G.ended){G.ended=true;endGame();}
   }
   raf=requestAnimationFrame(loop);
@@ -183,6 +189,10 @@ function stepPops(arr,dt){for(let i=arr.length-1;i>=0;i--){arr[i].y-=38*dt;arr[i
 function drawPops(c,arr){for(const p of arr){c.globalAlpha=Math.max(0,Math.min(1,p.life*2));c.font=`700 ${p.size}px Fredoka, sans-serif`;c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.lineWidth=6;c.strokeStyle='rgba(30,27,75,.8)';c.strokeText(p.text,p.x,p.y);c.fillStyle=p.color;c.fillText(p.text,p.x,p.y);}c.globalAlpha=1;}
 function drawCloud(c,x,y,s){c.fillStyle='rgba(255,255,255,.9)';c.beginPath();c.arc(x,y,18*s,0,7);c.arc(x+20*s,y-10*s,22*s,0,7);c.arc(x+42*s,y,18*s,0,7);c.arc(x+20*s,y+6*s,18*s,0,7);c.fill();}
 function label(c,text,x,y,size,color){c.font=`700 ${size}px Fredoka, sans-serif`;c.textAlign='center';c.textBaseline='middle';c.lineJoin='round';c.lineWidth=5;c.strokeStyle='rgba(30,27,75,.75)';c.strokeText(text,x,y);c.fillStyle=color||'#fff';c.fillText(text,x,y);}
+
+/* bonus seconds for a finished word; a game can earn at most its starting time in bonuses,
+   so one token never buys an endless game (short word lists made that possible) */
+function addTime(g,s){g.bonus=g.bonus||0;const add=Math.max(0,Math.min(s,g.tmax-g.bonus));g.bonus+=add;g.time=Math.min(g.tmax+30,g.time+add);}
 
 /* ===== GAME 1: Home Run Derby (baseball) ===== */
 function createDerby(){
@@ -400,11 +410,11 @@ function createBalloon(){
   g.tap=(x,y)=>{
     if(g.wait>0)return;
     let hit=null;
-    for(let i=g.bl.length-1;i>=0;i--){const b=g.bl[i],dx=x-b.x,dy=y-b.y;if(dx*dx+dy*dy<(b.r+10)*(b.r+10)){hit=b;break;}}
+    let hd=1e9;for(let i=g.bl.length-1;i>=0;i--){const b=g.bl[i];if(b.popped)continue;const d=Math.hypot(x-b.x,y-b.y)/b.r;if(d<(b.r+10)/b.r&&d<hd){hd=d;hit=b;}} // closest balloon wins when they overlap
     if(!hit)return;
     if(hit.l===need()){
       hit.popped=true;burst(g.parts,hit.x,hit.y,[hit.c,'#fff'],16,200);sfx('pop');g.idx++;g.score+=1;
-      if(g.idx>=g.word.length){g.done++;g.score+=g.word.length;g.time=Math.min(99,g.time+4);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,200,'#fde047',34);sfx('win');g.wait=1.1;}
+      if(g.idx>=g.word.length){g.done++;g.score+=g.word.length;addTime(g,4);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,200,'#fde047',34);sfx('win');g.wait=1.1;}
     }else{hit.wig=.4;sfx('nope');addPop(g.pops,'Find '+need().toUpperCase(),hit.x,hit.y-44,'#fff',20);}
   };
   g.update=dt=>{
@@ -1013,7 +1023,7 @@ function createCatcher(){
         it.done=true;
         if(g.wait<=0&&it.l===need()){
           g.idx++;g.score+=1;sfx('pop');burst(g.parts,it.x,it.y,[it.c,'#fff'],12,160);
-          if(g.idx>=g.word.length){g.done++;g.score+=g.word.length;g.time=Math.min(g.tmax+30,g.time+3);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,220,'#fde047',34);sfx('win');g.wait=1;}
+          if(g.idx>=g.word.length){g.done++;g.score+=g.word.length;addTime(g,3);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,220,'#fde047',34);sfx('win');g.wait=1;}
         }else if(g.wait<=0&&g.inv<=0){
           g.time=Math.max(0,g.time-2);g.inv=.6;sfx('nope');addPop(g.pops,'−2s · Need '+(need()||'').toUpperCase(),g.bx,BY-70,'#fca5a5',22);
         }
@@ -1133,7 +1143,7 @@ function createScramble(){
     const t=g.tiles.find(t=>!t.used&&x>=t.x&&x<=t.x+t.sz&&y>=t.y&&y<=t.y+t.sz);if(!t)return;
     if(t.c===g.word[g.built.length]){
       t.used=true;g.built+=t.c;sfx('pop');burst(g.parts,t.x+t.sz/2,t.y+t.sz/2,['#fde047','#fff'],8,120);
-      if(g.built.length===g.word.length){g.done++;const pts=g.word.length*2;g.score+=pts;g.time=Math.min(g.tmax+30,g.time+3);addPop(g.pops,`${g.word.toUpperCase()}! +${pts}`,180,190,'#fde047',34);sfx('win');g.wait=.9;}
+      if(g.built.length===g.word.length){g.done++;const pts=g.word.length*2;g.score+=pts;addTime(g,3);addPop(g.pops,`${g.word.toUpperCase()}! +${pts}`,180,190,'#fde047',34);sfx('win');g.wait=.9;}
     }else{t.wig=.4;sfx('nope');}
   };
   g.update=dt=>{
@@ -1211,7 +1221,7 @@ function createSnake(){
       const L=g.letters[li];
       if(g.wait<=0&&L.l===need()){
         g.grow+=1;g.idx++;g.score+=1;sfx('pop');burst(g.parts,cellX(nh.x),cellY(nh.y),['#fde047','#86efac','#fff'],12,140);
-        if(g.idx>=g.word.length){g.done++;g.score+=g.word.length;g.time=Math.min(g.tmax+30,g.time+3);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,240,'#fde047',34);sfx('win');g.letters=[];g.wait=.9;}
+        if(g.idx>=g.word.length){g.done++;g.score+=g.word.length;addTime(g,3);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,240,'#fde047',34);sfx('win');g.letters=[];g.wait=.9;}
         else place();
       }else{g.letters.splice(li,1);g.time=Math.max(0,g.time-2);sfx('nope');addPop(g.pops,'−2s · Need '+(need()||'').toUpperCase(),cellX(nh.x),cellY(nh.y)-20,'#fca5a5',20);
         const used=new Set(g.letters.map(l=>l.l));let d;do{d=pick(AB);}while(used.has(d)||d===need());g.letters.push(Object.assign(free(),{l:d}));}
@@ -1258,11 +1268,11 @@ function createWheel(){
   g.begin=()=>next();
   g.tap=(x,y)=>{
     if(hitCircle(x,y,W-34,62,18)){speak(g.word);return;}
-    if(g.wait>0)return;
+    if(g.wait>0||g.wob>0)return; // short pause after a miss so button-mashing can't drain the clock
     const L=g.segs[under()];
     if(L===need()){
       g.idx++;g.score+=1;sfx('pop');g.dirn*=-1;burst(g.parts,CX,CY-RAD,['#fde047','#fff','#f472b6'],14,160);
-      if(g.idx>=g.word.length){g.done++;g.score+=g.word.length;g.time=Math.min(g.tmax+30,g.time+3);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,230,'#fde047',34);sfx('win');g.wait=.9;}
+      if(g.idx>=g.word.length){g.done++;g.score+=g.word.length;addTime(g,3);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,230,'#fde047',34);sfx('win');g.wait=.9;}
     }else{g.time=Math.max(0,g.time-2);g.wob=.35;sfx('nope');addPop(g.pops,`That was ${L.toUpperCase()} · need ${need().toUpperCase()}`,180,CY-RAD-40,'#fca5a5',20);}
   };
   g.update=dt=>{
@@ -1322,18 +1332,18 @@ function createDetective(){
   g.begin=()=>next();
   g.tap=(x,y)=>{
     if(hitCircle(x,y,W-40,96,22)){speak(g.word);return;}
-    if(g.wait>0)return;
+    if(g.wait>0||g.cool>0)return;
     const i=CHX.findIndex(cx=>hitCircle(x,y,cx,CHY,CHR));if(i<0)return;
     const ch=g.choices[i],right=g.word[g.blanks[g.bi]];
     if(ch===right){
       g.filled[g.blanks[g.bi]]=ch;g.bi++;g.streak++;const pts=1+(g.streak>=3?1:0);g.score+=pts;sfx('pop');burst(g.parts,CHX[i],CHY,['#fde047','#fff'],12,150);
       if(g.streak===3)addPop(g.pops,'Streak! 🔥 double points',180,330,'#fb923c',22);
-      if(g.bi>=g.blanks.length){g.done++;g.score+=g.word.length;g.time=Math.min(g.tmax+30,g.time+3);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,250,'#fde047',34);sfx('win');g.wait=1;}
+      if(g.bi>=g.blanks.length){g.done++;g.score+=g.word.length;addTime(g,3);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,250,'#fde047',34);sfx('win');g.wait=1;}
       else makeChoices();
-    }else{g.streak=0;g.wig[i]=.4;g.time=Math.max(0,g.time-2);sfx('nope');addPop(g.pops,'−2s',CHX[i],CHY-60,'#fca5a5',22);}
+    }else{g.streak=0;g.wig[i]=.4;g.cool=.4;g.time=Math.max(0,g.time-2);sfx('nope');addPop(g.pops,'−2s',CHX[i],CHY-60,'#fca5a5',22);}
   };
   g.update=dt=>{
-    g.t+=dt;g.time-=dt;if(g.time<=0){g.time=0;g.over=true;return;}
+    g.t+=dt;g.cool=Math.max(0,(g.cool||0)-dt);g.time-=dt;if(g.time<=0){g.time=0;g.over=true;return;}
     if(g.wait>0){g.wait-=dt;if(g.wait<=0)next();}
     g.wig=g.wig.map(v=>Math.max(0,v-dt));
     stepParts(g.parts,dt,250);stepPops(g.pops,dt);
@@ -1644,7 +1654,7 @@ function createMiniGolf(){
   g.intro='Mini golf! <b>Press and pull back</b>, like a slingshot, then let go to putt. The dotted line shows where the ball will roll.<br>5 holes. Hole in one = 6 points, under par = more points!';
   g.hud=()=>`⛳ Hole ${Math.min(g.hole+1,g.total)}/${g.total} · Par ${HOLES[Math.min(g.hole,g.total-1)].par} · Strokes ${g.strokes} · ⭐ ${g.score}`;
   g.endTitle='Nice putting!';
-  const H0=()=>HOLES[g.hole];
+  const H0=()=>HOLES[Math.min(g.hole,g.total-1)];
   function load(){const h=H0();g.ball={x:h.b[0],y:h.b[1],vx:0,vy:0};g.strokes=0;g.state='aim';g.mx=0;}
   load();
   const moverRect=(h,t)=>{const m=h.mover;if(!m)return null;const cx=180+Math.sin(t*m.speed*DF())*m.range;return [cx-m.w/2,m.y,m.w,m.h];};
@@ -1716,12 +1726,14 @@ function createMiniGolf(){
 function createTennis(){
   const OY=118,HY=446,NY=286;
   const g={over:false,score:0,t:0,lives:3,returns:0,state:'serve',timer:1,ball:null,px:180,ox:180,parts:[],pops:[],swing:0,best:0};
-  g.intro='Keep the rally going! The ball comes to you, and your player moves by itself. <b>Tap when the ball reaches the ring</b>. The ring turns green at the perfect moment.<br>Perfect hit = 2 points, good hit = 1. You have 3 balls.';
+  g.intro='Keep the rally going! The ball comes to you, and your player moves by itself. <b>Tap when the ball reaches the ring</b>. The ring turns green at the perfect moment.<br>Perfect hit = 2 points, good hit = 1. You have 3 balls. Reach 50 returns to win the match!';
   g.hud=()=>`🎾 Rally ${g.returns} · ${'❤️'.repeat(g.lives)} · ⭐ ${g.score}`;
   g.endTitle='Great rally!';
   const speed=()=>Math.max(.55,1.25-g.returns*.035)/DF();
   function serve(){const tx=rnd(90,270);g.ball={from:[g.ox,OY+10],to:[tx,HY],t:0,dur:speed(),dir:1,hit:false};g.state='in';}
-  const W1=()=>.07*TOL(),W2=()=>.16*TOL();
+  const WIN=50; // a match ends after 50 returns so one token can't buy an endless rally
+  const tight=()=>Math.max(.6,1-g.returns*.008); // timing gets a little stricter as the rally grows
+  const W1=()=>.07*TOL()*tight(),W2=()=>.16*TOL()*tight();
   g.tap=()=>{
     if(g.swing>0)return;g.swing=.25;sfx('swoosh');
     if(g.state!=='in'||g.ball.dir!==1||g.ball.hit)return;
@@ -1730,6 +1742,7 @@ function createTennis(){
     if(Math.abs(e)<=W1()){g.score+=2;addPop(g.pops,'PERFECT!',g.px,HY-70,'#fde047',32);burst(g.parts,b.to[0],HY,['#fde047','#fff'],14,180);}
     else{g.score+=1;addPop(g.pops,'Nice!',g.px,HY-70,'#86efac',28);}
     sfx('hit');g.returns++;g.ox=rnd(90,270);
+    if(g.returns>=WIN){g.score+=25;g.best=g.returns;g.endTitle='Champion! 🏆';addPop(g.pops,'MATCH WON! +25',180,300,'#fde047',34);sfx('hr');g.state='out';g.lives=0;g.timer=1.6;g.ball=null;return;}
     g.ball={from:[b.to[0],HY],to:[g.ox,OY+10],t:0,dur:speed()*.9,dir:-1};
   };
   g.update=dt=>{
@@ -1799,7 +1812,7 @@ function createFishing(){
     if(h){h.t+=dt;
       if(h.phase==='down'&&h.t>.3){h.phase='up';h.t=0;
         if(g.wait<=0&&h.f.l===need()){h.good=true;g.idx++;g.score+=1;sfx('pop');burst(g.parts,h.f.x,h.f.y,[h.f.c,'#fff','#7dd3fc'],12,150);
-          if(g.idx>=g.word.length){g.done++;g.score+=g.word.length;g.time=Math.min(g.tmax+30,g.time+3);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,170,'#fde047',34);sfx('win');g.wait=1;}}
+          if(g.idx>=g.word.length){g.done++;g.score+=g.word.length;addTime(g,3);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,170,'#fde047',34);sfx('win');g.wait=1;}}
         else{h.good=false;g.time=Math.max(0,g.time-2);sfx('nope');addPop(g.pops,'−2s · Need '+(need()||'').toUpperCase(),180,170,'#fca5a5',22);}}
       else if(h.phase==='up'&&h.t>.35){g.fish=g.fish.filter(f=>f!==h.f);if(!h.good){h.f.caught=false;h.f.dir*=-1;h.f.v*=1.6;g.fish.push(h.f);}g.hook=null;}
     }
@@ -1847,15 +1860,15 @@ function createBeeHive(){
   g.begin=()=>next();
   g.tap=(x,y)=>{
     if(hitCircle(x,y,W-34,62,18)){speak(g.word);return;}
-    if(g.wait>0)return;
+    if(g.wait>0||g.cool>0)return;
     const cell=g.cells.find(cl=>!cl.used&&Math.hypot(cl.x-x,cl.y-y)<HXR*.95);if(!cell)return;
     if(cell.l===need()){cell.used=true;g.idx++;g.score+=1;g.path.push([cell.x,cell.y]);sfx('pop');burst(g.parts,cell.x,cell.y,['#fde047','#f59e0b','#fff'],10,140);
-      if(g.idx>=g.word.length){g.done++;g.score+=g.word.length;g.time=Math.min(g.tmax+30,g.time+3);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,170,'#fde047',34);sfx('win');g.wait=1.2;}}
-    else{cell.shake=.4;g.time=Math.max(0,g.time-2);sfx('nope');addPop(g.pops,'−2s · Need '+(need()||'').toUpperCase(),180,170,'#fca5a5',22);}
+      if(g.idx>=g.word.length){g.done++;g.score+=g.word.length;addTime(g,3);addPop(g.pops,`${g.word.toUpperCase()}! +${g.word.length}`,180,170,'#fde047',34);sfx('win');g.wait=1.2;}}
+    else{cell.shake=.4;g.cool=.4;g.time=Math.max(0,g.time-2);sfx('nope');addPop(g.pops,'−2s · Need '+(need()||'').toUpperCase(),180,170,'#fca5a5',22);}
   };
   function hex(c,x,y,r){c.beginPath();for(let i=0;i<6;i++){const a=Math.PI/6+i*Math.PI/3;c.lineTo(x+Math.cos(a)*r,y+Math.sin(a)*r);}c.closePath();}
   g.update=dt=>{
-    g.t+=dt;g.time-=dt;if(g.time<=0){g.time=0;g.over=true;return;}
+    g.t+=dt;g.cool=Math.max(0,(g.cool||0)-dt);g.time-=dt;if(g.time<=0){g.time=0;g.over=true;return;}
     stepParts(g.parts,dt,200);stepPops(g.pops,dt);
     if(g.wait>0){g.wait-=dt;if(g.wait<=0)next();}
     for(const cl of g.cells)cl.shake=Math.max(0,cl.shake-dt);
