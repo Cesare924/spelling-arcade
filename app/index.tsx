@@ -6,6 +6,9 @@ import { Screen, Card, Btn, H, P, Row, IconBtn, useLook } from '../src/component
 import { KidPicker } from '../src/components/overlays.tsx';
 import { SHOW_SUPPORT_LINK } from '../src/config.ts';
 import { allWords, trickyWords, dueWords, streak, upcomingTest, whenText, profileOf, plural } from '../src/logic/state.ts';
+import { PRIZES } from '../src/data/prizes.ts';
+import { goalOf, looksBySlot } from '../src/logic/prizes.ts';
+import { GoalBar, TICKET } from '../src/components/tickets.tsx';
 
 export default function Home() {
   const { ready, root, kid, requirePin } = useApp();
@@ -18,23 +21,42 @@ export default function Home() {
   if (!ready || needsSetup) return <View style={{ flex: 1, justifyContent: 'center' }}><ActivityIndicator size="large" color={c.brand} /></View>;
 
   const me = profileOf(root), due = dueWords(kid), test = upcomingTest(kid), days = streak(kid), tricky = trickyWords(kid).length;
+  const goal = goalOf(root, kid, root.active), night = !!looksBySlot(kid).home;
+  const trophies = PRIZES.filter(p => p.kind === 'trophy' && kid.owned.includes(p.id));
+  const waiting = kid.famReq.filter(q => q.st === 'wait');
+  const ink = night ? '#ffffff' : undefined, soft = night ? '#c7d2fe' : undefined;
   const grown = (path: '/words' | '/settings' | '/report' | '/help') => requirePin(() => router.push(path));
   return (
     <Screen>
       <Stack.Screen options={{ headerRight: () => <IconBtn icon="❓" label="Help" onPress={() => grown('/help')} /> }} />
-      <Card style={{ alignItems: 'center' }}>
+      <Card style={{ alignItems: 'center', ...(night ? { backgroundColor: '#1e1b4b', borderColor: '#312e81' } : {}) }}>
+        {night && <Text accessibilityElementsHidden importantForAccessibility="no" style={{ position: 'absolute', top: 8, left: 14, right: 14, color: '#fde68a', fontSize: 14, letterSpacing: 18, opacity: .8 }}>✦ · ✧ · ✦ · ✧ · ✦</Text>}
         <Pressable onPress={() => setPicker(true)} accessibilityRole="button" accessibilityLabel={`${me.name}. Tap to switch kids`} style={{ alignItems: 'center' }}>
           <Text style={{ fontSize: 56 }}>{me.avatar}</Text>
-          <H>Hi, {me.name}! 👋</H>
-          {root.profiles.length > 1 && <P small>Tap your picture to switch kids</P>}
+          <H style={{ color: ink }}>Hi, {me.name}! 👋</H>
+          {root.profiles.length > 1 && <P small style={{ color: soft }}>Tap your picture to switch kids</P>}
         </Pressable>
-        <Row style={{ justifyContent: 'center', gap: 18 }}>
-          <Mini n={kid.tokens} label="tokens" icon="🪙" />
-          <Mini n={days} label="day streak" icon="🔥" />
-          <Mini n={words.length} label="words" icon="📚" />
+        <Row style={{ justifyContent: 'center', gap: 14 }}>
+          <Mini n={kid.tokens} label="tokens" icon="🪙" ink={ink} soft={soft} />
+          <Mini n={kid.tickets} label="tickets" icon="🎟️" ink={ink} soft={soft} />
+          <Mini n={days} label="day streak" icon="🔥" ink={ink} soft={soft} />
+          <Mini n={words.length} label="words" icon="📚" ink={ink} soft={soft} />
         </Row>
-        <P small style={{ textAlign: 'center' }}>Spell a word right to earn 🪙 1 token. Spend tokens in the Game Arcade!</P>
+        {trophies.length > 0 && (
+          <View accessible accessibilityLabel={`Trophy shelf: ${trophies.map(t => t.name).join(', ')}`}
+            style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 12, paddingTop: 2, borderBottomWidth: 6, borderBottomColor: '#d6a46c', borderRadius: 3 }}>
+            {trophies.map(t => <Text key={t.id} style={{ fontSize: 34 }}>{t.em}</Text>)}
+          </View>
+        )}
+        <P small style={{ textAlign: 'center', color: soft }}>Spell words to earn 🪙 tokens. Play games to win 🎟️ tickets!</P>
       </Card>
+      {goal && <Card style={{ borderColor: TICKET.line, borderStyle: 'dashed', borderWidth: 2, paddingVertical: 12 }}><GoalBar goal={goal} have={kid.tickets} /></Card>}
+      {waiting.length > 0 && (
+        <Card style={{ backgroundColor: '#fff7ed', borderColor: '#fdba74', paddingVertical: 12 }}>
+          <Text style={{ color: c.ink, fontWeight: '800', fontSize: 15 * f }}>⏳ {waiting.map(q => `${q.em} ${q.name}`).join(', ')}: waiting for a grown-up to OK</Text>
+          <Btn small kind="secondary" label="🔒 Grown-up: answer now" onPress={() => requirePin(() => router.push('/family-prizes'))} />
+        </Card>
+      )}
 
       {test && (
         <Card style={{ backgroundColor: c.sunSoft, borderColor: c.sun }}>
@@ -49,7 +71,10 @@ export default function Home() {
         onPress={() => router.push({ pathname: '/practice/session', params: { mode: 'due' } })} />}
       {tricky > 0 && <Btn kind="secondary" label={`🧠 Tricky words (${tricky})`}
         onPress={() => router.push({ pathname: '/practice/session', params: { mode: 'tricky' } })} />}
-      <Btn big kind="good" label="🎮  Game Arcade" onPress={() => router.push('/arcade')} />
+      <Row>
+        <Btn big kind="good" label="🎮 Arcade" onPress={() => router.push('/arcade')} style={{ flex: 1 }} />
+        <Btn big label="🎁 Prizes" onPress={() => router.push('/prizes')} style={{ flex: 1, backgroundColor: TICKET.main }} />
+      </Row>
       <Row>
         <Btn kind="secondary" label="📚 My Words" onPress={() => grown('/words')} style={{ flex: 1 }} />
         <Btn kind="secondary" label="⚙️ Settings" onPress={() => grown('/settings')} style={{ flex: 1 }} />
@@ -66,12 +91,12 @@ export default function Home() {
   );
 }
 
-function Mini({ n, label, icon }: { n: number; label: string; icon: string }) {
+function Mini({ n, label, icon, ink, soft }: { n: number; label: string; icon: string; ink?: string; soft?: string }) {
   const { c, f } = useLook();
   return (
     <View style={{ alignItems: 'center' }}>
-      <Text style={{ fontSize: 26 * f, fontWeight: '900', color: c.ink }}>{icon} {n}</Text>
-      <Text style={{ color: c.soft, fontSize: 13 * f }}>{label}</Text>
+      <Text style={{ fontSize: 22 * f, fontWeight: '900', color: ink || c.ink }}>{icon} {n}</Text>
+      <Text style={{ color: soft || c.soft, fontSize: 12.5 * f }}>{label}</Text>
     </View>
   );
 }

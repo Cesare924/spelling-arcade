@@ -78,11 +78,15 @@ export function Field(props: TextInputProps) {
 /** Tap-to-spell letter tiles. `used` marks tiles already placed. */
 export function Tiles({ tiles, used, onTap }: { tiles: string[]; used: boolean[]; onTap: (i: number) => void }) {
   const { c, f } = useLook();
+  const { kid } = useApp();
+  // Prize Counter look: candy letter tiles
+  const candy = kid.looksOn.includes('lk_tiles') && kid.owned.includes('lk_tiles');
+  const tileBg = candy ? '#fce7f3' : c.tile, tileLine = candy ? '#ec4899' : c.sun;
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
       {tiles.map((t, i) => (
         <Pressable key={i} disabled={used[i]} onPress={() => onTap(i)} accessibilityLabel={`letter ${t}`}
-          style={({ pressed }) => [{ width: 48 * f, height: 52 * f, borderRadius: 12, backgroundColor: c.tile, borderWidth: 2, borderColor: c.sun, alignItems: 'center', justifyContent: 'center' },
+          style={({ pressed }) => [{ width: 48 * f, height: 52 * f, borderRadius: 12, backgroundColor: tileBg, borderWidth: 2, borderColor: tileLine, alignItems: 'center', justifyContent: 'center' },
             used[i] && { opacity: .25 }, pressed && { transform: [{ scale: .94 }] }]}>
           <Text style={{ fontSize: 26 * f, fontWeight: '900', color: c.ink }}>{t}</Text>
         </Pressable>

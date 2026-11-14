@@ -19,6 +19,15 @@ html,body{margin:0;height:100%;overflow:hidden;background:#1e1b4b;font-family:sy
 .btn{display:block;width:100%;margin-top:10px;border:0;border-radius:14px;padding:13px;font:800 17px system-ui,sans-serif;color:#fff;background:#7c3aed}
 .btn.green{background:#16a34a}.btn.ghost{background:#ede9fe;color:#5b21b6}
 .muted{color:#4c4f6b}.nb{color:#b45309;font-weight:800}
+.tix{margin:10px 0 4px;padding:10px 12px;border-radius:16px;background:#fff1f3;border:2px solid #fda4af;color:#9f1239}
+.tix .big{display:flex;align-items:center;justify-content:center;gap:8px;font:800 30px system-ui,sans-serif;color:#be123c}
+.tix .big small{font-size:16px;color:#9f1239}
+.tix .row{display:flex;justify-content:space-between;font-size:14px;color:#4c4f6b;padding:2px 2px}
+.tix .row b{color:#1e1b4b}.tix .jp{color:#b45309;font-weight:800;text-align:center;font-size:15px;margin-top:2px}
+.tix .note{font-size:13px;color:#4c4f6b;margin-top:4px}
+.strip{display:flex;justify-content:center;gap:3px;margin:-4px 0 6px}
+.strip i{display:block;width:26px;height:16px;background:#fb7185;border-radius:2px;border-left:2px dashed #ffe4e6;border-right:2px dashed #ffe4e6;animation:drop .35s ease-out both}
+@keyframes drop{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
 </style></head>
 <body>
 <div id="top"><button id="back" aria-label="Back to Arcade">← Arcade</button><div id="score"></div></div>
@@ -29,6 +38,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#1e1b4b;font-family:sy
 const INIT=window.__SS_INIT||{id:'derby',set:{diff:'normal',calm:false,sfx:true,voice:true,twice:false,grade:'23',cost:1,maxGames:0,maxMin:0},words:['cat','dog','sun'],sent:{},tokens:5,best:{},day:{games:0,ms:0},title:'Game',em:'🎮'};
 const S={set:INIT.set,tokens:INIT.tokens,best:INIT.best};
 const DAY={games:INIT.day.games,ms:INIT.day.ms};
+/* prizes from the Prize Counter that change how games look, e.g. {hoops:true} */
+const LOOKS=INIT.looks||{};
 function post(m){try{window.ReactNativeWebView.postMessage(JSON.stringify(m));}catch(e){}}
 let msBuf=0;
 function flushMs(){if(msBuf>0){post({t:'ms',ms:Math.round(msBuf)});msBuf=0;}}
@@ -79,6 +90,7 @@ function noise(d,vol,when){
 const SFX={
   correct:()=>{tone(523,.13,'triangle',.14);tone(659,.13,'triangle',.14,.1);tone(784,.25,'triangle',.14,.2);},
   coin:()=>{tone(988,.08,'square',.06);tone(1319,.3,'square',.06,.08);},
+  tick:()=>tone(1500,.03,'square',.03),
   wrong:()=>tone(240,.3,'sawtooth',.06,0,150),
   swoosh:()=>noise(.14,.07),
   hit:()=>{tone(170,.08,'square',.16);noise(.12,.25);},
@@ -158,11 +170,26 @@ function endGame(){
   sfx('win');
   const lim=limitReason(),cost=S.set.cost;
   const again=lim?`<p class="nb">${lim}</p>`:S.tokens>=cost?`<button class="btn green" id="ovAgain">Play again · ${cost} 🪙</button>`:`<p class="muted">Out of tokens. Spell more words to earn more!</p>`;
-  overlay(`<div class="card"><div style="font-size:52px">${G.timeUp?'⏰':nb&&prev!=null?'🏆':'🎉'}</div><h3>${G.timeUp?'Time for a break!':(G.endTitle||'Great game!')}</h3><p>Score: <b style="font-size:22px">${score}</b></p><p class="${nb&&prev!=null?'nb':'muted'}">${nb&&prev!=null?'New best score!':'Best: '+S.best[id]}</p>${again}<button class="btn ghost" id="ovArcade">Back to Arcade</button></div>`);
+  overlay(`<div class="card"><div style="font-size:52px">${G.timeUp?'⏰':nb&&prev!=null?'🏆':'🎉'}</div><h3>${G.timeUp?'Time for a break!':(G.endTitle||'Great game!')}</h3><p>Score: <b style="font-size:22px">${score}</b></p><p class="${nb&&prev!=null?'nb':'muted'}">${nb&&prev!=null?'New best score!':'Best: '+S.best[id]}</p><div id="tix"></div>${again}<button class="btn ghost" id="ovArcade">Back to Arcade</button></div>`);
   const a=$('#ovAgain');if(a)a.addEventListener('click',()=>beginGame(id));
   $('#ovArcade').addEventListener('click',exit);
 }
 function exit(){flushMs();post({t:'exit'});}
+/* The app works out the tickets and sends them here to show. Built with DOM text only. */
+window.__tickets=function(r){
+  const box=$('#tix');if(!box||!r)return;
+  const total=Math.max(0,Math.min(99,Math.floor(+r.total)||0));
+  box.className='tix';box.textContent='';
+  const el=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=String(txt);return e;};
+  const strip=el('div','strip');for(let i=0;i<Math.min(6,Math.max(1,Math.ceil(total/3)));i++){const t=el('i');t.style.animationDelay=(i*.12)+'s';strip.appendChild(t);}
+  const big=el('div','big');const num=el('span',null,'+0');big.appendChild(num);big.appendChild(el('small',null,total===1?'ticket':'tickets'));
+  box.appendChild(strip);box.appendChild(big);
+  (Array.isArray(r.rows)?r.rows:[]).slice(0,4).forEach(x=>{if(!Array.isArray(x))return;const row=el('div','row');row.appendChild(el('span',null,String(x[0]).slice(0,40)));row.appendChild(el('b',null,'+'+(Math.floor(+x[1])||0)));box.appendChild(row);});
+  if(r.jackpot)box.appendChild(el('div','jp','🎰 JACKPOT! +'+(Math.floor(+r.jackpot)||0)));
+  if(r.note)box.appendChild(el('div','note',String(r.note).slice(0,90)));
+  let n=0;const iv=setInterval(()=>{n++;num.textContent='+'+Math.min(n,total);sfx('tick');if(n>=total){clearInterval(iv);sfx(r.jackpot?'win':'coin');}},Math.max(40,600/Math.max(1,total)));
+  if(!total)clearInterval(iv);
+};
 $('#back').addEventListener('click',exit);
 function cvPt(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height];}
 cv.addEventListener('pointerdown',e=>{

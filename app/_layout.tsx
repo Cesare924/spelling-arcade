@@ -23,6 +23,9 @@ function Nav() {
         <Stack.Screen name="scan" options={{ title: 'Scan a list' }} />
         <Stack.Screen name="settings" options={{ title: 'Grown-up Settings' }} />
         <Stack.Screen name="arcade" options={{ title: 'Game Arcade' }} />
+        <Stack.Screen name="prizes" options={{ title: 'Prize Counter' }} />
+        <Stack.Screen name="my-prizes" options={{ title: 'My Prizes' }} />
+        <Stack.Screen name="family-prizes" options={{ title: 'Family prizes' }} />
         <Stack.Screen name="game" options={{ headerShown: false, contentStyle: { backgroundColor: '#1e1b4b' } }} />
         <Stack.Screen name="report" options={{ title: 'Progress report' }} />
         <Stack.Screen name="help" options={{ title: 'Help' }} />

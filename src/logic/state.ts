@@ -1,6 +1,7 @@
 // App data model. The JSON shape matches the original web prototype,
 // so a backup saved from the prototype restores into this app unchanged.
 import type { Band } from '../data/gradeLists.ts';
+import { PRIZE_BY_ID, PRIZE_AVATARS, FAMILY_EMOJI } from '../data/prizes.ts';
 
 export type GameId =
   | 'derby' | 'race' | 'soccer' | 'hoops' | 'unicorn' | 'balloon' | 'catcher' | 'moonrocket'
@@ -45,14 +46,23 @@ export interface Kid {
   lists: WordList[]; cur: string | null; stats: Record<string, WordStat>; hist: Record<string, { c: number; m: number }>;
   day: { date: string; games: number; ms: number }; stars: number; tokens: number; spelled: number;
   best: Record<string, number>; favs: GameId[]; set: Settings;
+  /** Prize Counter: ticket balance, lifetime totals, owned prizes, looks turned on, saving goal, family prize requests. */
+  tickets: number; tix: { earned: number; spent: number }; tday: Record<string, number>; owned: string[]; looksOn: string[]; goal: string; famReq: FamReq[];
 }
+/** A real-world prize a grown-up made. kids: [] means every kid can pick it. */
+export interface FamPrize { id: string; name: string; em: string; price: number; freq: 'any' | 'week' | 'month' | 'once'; kids: string[] }
+/** A kid's request for a family prize. Its tickets are set aside until a grown-up answers. */
+export interface FamReq { id: string; pid: string; name: string; em: string; price: number; at: number; st: 'wait' | 'ok' | 'no'; done: number }
 export interface Profile { id: string; name: string; avatar: string }
 export interface Root {
   v: 2; profiles: Profile[]; active: string; pin: string; P: Record<string, Kid>;
   sent: Record<string, string>; defs: Record<string, string>; lastBackup: number; setupDone: boolean; updatedAt: number;
+  fam: { on: boolean; prizes: FamPrize[] };
 }
 
 export const AVATARS = ['🦄', '🐶', '🐱', '🦊', '🐼', '🐸', '🦁', '🐵', '🐙', '🦖', '🐧', '🐝', '🐯', '🐰'];
+/** Free avatars plus the ones kids can win at the Prize Counter. */
+const ANY_AVATAR = [...AVATARS, ...PRIZE_AVATARS];
 
 /* ---------- dates ---------- */
 export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
@@ -129,7 +139,32 @@ export function normalizeKid(d: unknown): Kid {
     best: isObj(x.best) ? Object.fromEntries(safeKeys(x.best, 50).filter(k => GAME_IDS.includes(k as GameId)).map(k => [k, N(x.best[k])])) : {},
     favs: Array.isArray(x.favs) ? x.favs.filter((g: any) => GAME_IDS.includes(g)) : [],
     set: normSet(x.set, !!x.muted),
+    tickets: num(x.tickets, 0, 1e6, 0),
+    tix: { earned: num(isObj(x.tix) ? x.tix.earned : 0, 0, 1e7, 0), spent: num(isObj(x.tix) ? x.tix.spent : 0, 0, 1e7, 0) },
+    tday: isObj(x.tday) ? Object.fromEntries(Object.keys(x.tday).filter(k => parseDay(k)).sort().slice(-14).map(k => [k, num(x.tday[k], 0, 1e5, 0)])) : {},
+    owned: uniq(Array.isArray(x.owned) ? x.owned.filter((id: any) => typeof id === 'string' && !!PRIZE_BY_ID[id]) : []),
+    looksOn: uniq(Array.isArray(x.looksOn) ? x.looksOn.filter((id: any) => typeof id === 'string' && PRIZE_BY_ID[id]?.kind === 'look' && x.owned?.includes?.(id)) : []),
+    goal: typeof x.goal === 'string' && x.goal.length <= 40 ? x.goal : '',
+    famReq: Array.isArray(x.famReq) ? x.famReq.filter(isObj).slice(-40).map(normReq).filter((q: FamReq | null): q is FamReq => !!q) : [],
   };
+}
+const uniq = (a: string[]) => [...new Set(a)];
+const cleanName = (v: unknown, max: number) => String(v ?? '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, max);
+function normReq(q: Record<string, any>): FamReq | null {
+  const st = oneOf(q.st, ['wait', 'ok', 'no'] as const, 'no');
+  const name = cleanName(q.name, 30); if (!name) return null;
+  return { id: String(q.id || uid()).slice(0, 24), pid: String(q.pid || '').slice(0, 24), name, em: FAMILY_EMOJI.includes(q.em) ? q.em : '🎁',
+    price: num(q.price, 1, 5000, 1), at: num(q.at, 0, 9e15, 0), st, done: num(q.done, 0, 9e15, 0) };
+}
+export function normFamPrize(p: unknown): FamPrize | null {
+  if (!isObj(p)) return null;
+  const name = cleanName(p.name, 30); if (!name) return null;
+  return { id: String(p.id || uid()).slice(0, 24), name, em: FAMILY_EMOJI.includes(p.em) ? p.em : '🎁', price: num(p.price, 5, 5000, 100),
+    freq: oneOf(p.freq, ['any', 'week', 'month', 'once'] as const, 'any'), kids: Array.isArray(p.kids) ? p.kids.filter((k: any) => typeof k === 'string').slice(0, 8) : [] };
+}
+function normFam(f: unknown): Root['fam'] {
+  const x = isObj(f) ? f : {};
+  return { on: x.on !== false, prizes: Array.isArray(x.prizes) ? x.prizes.slice(0, 30).map(normFamPrize).filter((p: FamPrize | null): p is FamPrize => !!p) : [] };
 }
 
 function strMap(x: unknown, max: number, len: number) {
@@ -142,7 +177,7 @@ export function normalizeRoot(d: unknown): Root {
   const x = isObj(d) ? d : {};
   if (Array.isArray(x.profiles) && isObj(x.P)) {
     const profiles: Profile[] = x.profiles.filter((p: any) => p && p.id && x.P[p.id]).slice(0, 8)
-      .map((p: any) => ({ id: String(p.id), name: String(p.name || 'Speller').slice(0, 20), avatar: AVATARS.includes(p.avatar) ? p.avatar : '🦄' }));
+      .map((p: any) => ({ id: String(p.id), name: String(p.name || 'Speller').slice(0, 20), avatar: ANY_AVATAR.includes(p.avatar) ? p.avatar : '🦄' }));
     if (profiles.length) {
       const P: Record<string, Kid> = {};
       profiles.forEach(p => { P[p.id] = normalizeKid(x.P[p.id]); });
@@ -150,12 +185,13 @@ export function normalizeRoot(d: unknown): Root {
         v: 2, profiles, active: profiles.some(p => p.id === x.active) ? x.active : profiles[0].id,
         pin: /^\d{4}$/.test(x.pin || '') ? x.pin : '', P, sent: strMap(x.sent, 400, 200), defs: strMap(x.defs, 400, 220),
         lastBackup: +x.lastBackup || 0, setupDone: !!x.setupDone, updatedAt: +x.updatedAt || 0,
+        fam: normFam(x.fam),
       };
     }
   }
   const id = uid();
   return { v: 2, profiles: [{ id, name: 'Speller', avatar: '🦄' }], active: id, pin: '', P: { [id]: normalizeKid(x) },
-    sent: {}, defs: {}, lastBackup: +x.lastBackup || 0, setupDone: !!x.setupDone, updatedAt: +x.updatedAt || 0 };
+    sent: {}, defs: {}, lastBackup: +x.lastBackup || 0, setupDone: !!x.setupDone, updatedAt: +x.updatedAt || 0, fam: normFam(null) };
 }
 
 /* ---------- queries ---------- */
@@ -208,5 +244,6 @@ export function addKid(r: Root): Profile | null {
 export function removeKid(r: Root, id: string) {
   if (r.profiles.length <= 1) return;
   r.profiles = r.profiles.filter(p => p.id !== id); delete r.P[id];
+  for (const p of r.fam.prizes) p.kids = p.kids.filter(k => k !== id);
   if (r.active === id) r.active = r.profiles[0].id;
 }

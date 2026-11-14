@@ -3,6 +3,10 @@ import assert from 'node:assert/strict';
 import { normalizeRoot, kidOf, allWords, trickyWords, dueWords, isMastered, streak, today, addDays } from '../src/logic/state.ts';
 import { cleanWord, addWords, addGradeList, recordAttempt, roundStars, blankParts, builtinSent, makeTiles, roundWords, letterMarks } from '../src/logic/practice.ts';
 import { GRADE_LISTS } from '../src/data/gradeLists.ts';
+import { payout, LEVELS, MAX_PER_GAME } from '../src/logic/tickets.ts';
+import { awardTickets, buyPrize, setLook, looksBySlot, famFor, famBlock, requestFam, answerReq, waitingReqs, setAside, goalOf, ticketsPerDay, adjustTickets } from '../src/logic/prizes.ts';
+import { PRIZES } from '../src/data/prizes.ts';
+import { GAME_IDS } from '../src/logic/state.ts';
 
 let passed = 0;
 const test = (name: string, fn: () => void) => { fn(); passed++; console.log('ok -', name); };
@@ -167,4 +171,86 @@ test('a tampered backup cannot set impossible values or change prototypes', () =
   assert.deepEqual(k.best, { derby: 3 });
   assert.equal(({} as any).polluted, undefined); assert.equal((k.stats as any).polluted, undefined); assert.equal((r.sent as any).polluted, undefined);
 });
+
+/* ---------- tickets & prizes ---------- */
+test('every game has rising ticket levels', () => {
+  for (const id of GAME_IDS) { const [b, s, g] = LEVELS[id]; assert.ok(b > 0 && b < s && s < g, id); }
+});
+test('payout levels, new best and jackpot', () => {
+  assert.equal(payout('bowling', 0, undefined, .99).total, 1);
+  assert.equal(payout('bowling', 40, undefined, .99).level, 'bronze');
+  const p = payout('bowling', 87, 60, .99);
+  assert.equal(p.level, 'silver'); assert.equal(p.newBest, 4); assert.equal(p.total, 9); assert.equal(p.next, 100);
+  assert.equal(payout('bowling', 87, 0, .99).newBest, 0, 'no best bonus without a real best');
+  assert.equal(payout('bowling', 50, 60, .0).jackpot, 0, 'no jackpot on bronze');
+  const top = payout('bowling', 100, 90, 0);
+  assert.equal(top.total, MAX_PER_GAME); assert.equal(top.next, null);
+});
+test('awardTickets is capped per game and logs the day', () => {
+  const k = kidOf(normalizeRoot(null));
+  assert.equal(awardTickets(k, 9999), MAX_PER_GAME);
+  assert.equal(awardTickets(k, -5), 0);
+  assert.equal(k.tickets, MAX_PER_GAME); assert.equal(k.tday[today()], MAX_PER_GAME);
+  assert.equal(ticketsPerDay(k), MAX_PER_GAME);
+});
+test('buying prizes, looks and goals', () => {
+  const k = kidOf(normalizeRoot(null)); k.tickets = 120; k.goal = 'lk_hoops';
+  assert.match(buyPrize(k, 'tp_teddy'), /180 more/);
+  assert.equal(buyPrize(k, 'lk_hoops'), '');
+  assert.equal(k.tickets, 20); assert.equal(k.tix.spent, 100); assert.equal(k.goal, '');
+  assert.deepEqual(looksBySlot(k), { hoops: true }, 'a bought look turns on');
+  assert.match(buyPrize(k, 'lk_hoops'), /already/);
+  setLook(k, 'lk_hoops', false); assert.deepEqual(looksBySlot(k), {});
+  setLook(k, 'lk_snake', true); assert.deepEqual(looksBySlot(k), {}, 'cannot turn on a look you do not own');
+  assert.match(buyPrize(k, 'nope'), /gone/);
+});
+test('prize ids are unique and prices sensible', () => {
+  assert.equal(new Set(PRIZES.map(p => p.id)).size, PRIZES.length);
+  for (const p of PRIZES) assert.ok(p.price >= 10 && p.price <= 1000, p.id);
+});
+test('family prize request, limits, answer and refund', () => {
+  const r = normalizeRoot(null), kidId = r.active, k = kidOf(r);
+  r.fam.prizes.push({ id: 'p1', name: 'Pick dinner', em: '🍝', price: 150, freq: 'week', kids: [] });
+  const p = famFor(r, kidId)[0];
+  k.tickets = 100; assert.match(famBlock(k, p), /50 more/);
+  k.tickets = 400; k.goal = 'fam:p1';
+  assert.deepEqual(goalOf(r, k, kidId), { em: '🍝', name: 'Pick dinner', price: 150 });
+  const now = Date.now();
+  assert.equal(requestFam(k, p, now), '');
+  assert.equal(k.tickets, 250); assert.equal(setAside(k), 150); assert.equal(k.goal, '');
+  assert.match(famBlock(k, p, now), /already asked/);
+  assert.equal(waitingReqs(r).length, 1);
+  answerReq(k, k.famReq[0].id, false, now);
+  assert.equal(k.tickets, 400, '"not now" refunds'); assert.equal(setAside(k), 0);
+  assert.equal(requestFam(k, p, now), '');
+  answerReq(k, k.famReq[1].id, true, now);
+  assert.equal(k.tickets, 250); assert.equal(k.tix.spent, 150);
+  answerReq(k, k.famReq[1].id, false, now); assert.equal(k.tickets, 250, 'an answered request cannot be answered again');
+  assert.match(famBlock(k, p, now + 2 * 864e5), /again in 5 days/);
+  assert.equal(famBlock(k, p, now + 8 * 864e5), '');
+  r.fam.on = false; assert.equal(famFor(r, kidId).length, 0);
+});
+test('family prizes can be limited to some kids, and removing a kid cleans up', () => {
+  const r = normalizeRoot(null), a = r.active, b = addKid(r)!.id;
+  r.fam.prizes.push({ id: 'p2', name: 'Ice cream', em: '🍦', price: 400, freq: 'once', kids: [b] });
+  assert.equal(famFor(r, a).length, 0); assert.equal(famFor(r, b).length, 1);
+  removeKid(r, b); assert.deepEqual(r.fam.prizes[0].kids, []);
+});
+test('saved prize data is checked on load', () => {
+  const r = normalizeRoot(null), id = r.active;
+  const raw: any = JSON.parse(JSON.stringify(r));
+  Object.assign(raw.P[id], { tickets: -50, owned: ['st_rocket', 'fake', 'st_rocket'], looksOn: ['lk_snake', 'st_rocket'], goal: 'x'.repeat(99),
+    famReq: [{ name: '<b>Hi</b>', em: '💣', price: 1e9, st: 'weird' }, { name: '' }] });
+  raw.fam = { on: false, prizes: [{ name: 'Park', em: '🌳', price: 0, freq: 'daily', kids: [1, 'k'] }, { name: '   ' }, 'junk'] };
+  raw.profiles[0].avatar = '🤖';
+  const r2 = normalizeRoot(raw), k = kidOf(r2);
+  assert.equal(k.tickets, 0); assert.deepEqual(k.owned, ['st_rocket']); assert.deepEqual(k.looksOn, []); assert.equal(k.goal, '');
+  assert.equal(k.famReq.length, 1); assert.equal(k.famReq[0].name, 'bHi/b'); assert.equal(k.famReq[0].em, '🎁');
+  assert.equal(k.famReq[0].price, 5000); assert.equal(k.famReq[0].st, 'no');
+  assert.equal(r2.fam.on, false); assert.equal(r2.fam.prizes.length, 1);
+  assert.deepEqual(r2.fam.prizes[0], { id: r2.fam.prizes[0].id, name: 'Park', em: '🌳', price: 5, freq: 'any', kids: ['k'] });
+  assert.equal(r2.profiles[0].avatar, '🤖', 'prize avatars are allowed');
+  adjustTickets(k, -10); assert.equal(k.tickets, 0);
+});
+
 console.log(`\n${passed} tests passed`);

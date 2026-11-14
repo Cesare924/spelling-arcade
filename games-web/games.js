@@ -778,7 +778,7 @@ function createHoops(){
     for(let i=-3;i<=3;i++){c.beginPath();c.moveTo(x+i*7,HY+4);c.lineTo(x+i*4.5,HY+38);c.stroke();}
     c.beginPath();c.moveTo(x-20,HY+16);c.lineTo(x+20,HY+16);c.moveTo(x-17,HY+28);c.lineTo(x+17,HY+28);c.stroke();
     const b=g.ball;
-    const drawBall=(bx,by,s)=>emo(c,'🏀',bx,by,s);
+    const drawBall=(bx,by,s)=>{if(LOOKS.hoops){c.save();c.shadowColor='#fde047';c.shadowBlur=30;c.fillStyle='rgba(253,224,71,.7)';c.beginPath();c.arc(bx,by,s*.72,0,7);c.fill();c.restore();}emo(c,'🏀',bx,by,s);}; // Prize Counter look: glowing basketball
     if(b&&b.phase==='in'){const p=Math.min(1,b.t2/.45);drawBall(x,HY+p*50,30);}
     c.strokeStyle='#f97316';c.lineWidth=4;c.beginPath();c.ellipse(x,HY+4,24,7,0,0,7);c.stroke();
     if(b&&b.phase==='up'){const p=Math.min(1,b.t/b.dur),q=shotPt(p);drawBall(q.x,q.y,46-16*p);}
@@ -871,7 +871,7 @@ function createCatcher(){
       c.fillStyle='#fff';c.font='700 26px Fredoka, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(it.l.toUpperCase(),0,1);
       c.restore();
     }
-    if(!(g.inv>0&&Math.floor(g.inv*12)%2))emo(c,'🧺',g.bx,BY,70);
+    if(!(g.inv>0&&Math.floor(g.inv*12)%2))emo(c,LOOKS.catcher?'🛒':'🧺',g.bx,BY,70);
     drawParts(c,g.parts);drawPops(c,g.pops);
   };
   return g;
@@ -1066,7 +1066,7 @@ function createSnake(){
     if(g.word){slotsPanel(c,58,g.word,i=>g.word[i],i=>i<g.idx?'#fff':i===g.idx?'#fde047':'rgba(255,255,255,.3)');roundBtn(c,W-34,62,18,'🔊');}
     const tf=Math.max(0,Math.min(1,g.time/g.tmax));c.fillStyle='rgba(255,255,255,.6)';rr(c,20,102,W-40,10,5);c.fill();c.fillStyle=tf>.3?'#fde047':'#ef4444';rr(c,20,102,(W-40)*tf,10,5);c.fill();
     for(const L of g.letters){const x=cellX(L.x),y=cellY(L.y);c.fillStyle='#fff';c.beginPath();c.arc(x,y,13,0,7);c.fill();c.strokeStyle='#7c3aed';c.lineWidth=2.5;c.stroke();c.fillStyle='#4c1d95';c.font='700 18px Fredoka, sans-serif';c.fillText(L.l.toUpperCase(),x,y+1);}
-    g.snake.forEach((s,i)=>{const x=cellX(s.x),y=cellY(s.y);c.fillStyle=i===0?'#7c3aed':i%2?'#a78bfa':'#8b5cf6';c.beginPath();c.arc(x,y,i===0?14:12,0,7);c.fill();
+    g.snake.forEach((s,i)=>{const x=cellX(s.x),y=cellY(s.y);c.fillStyle=LOOKS.snake?(i===0?'#ef4444':`hsl(${(i*38)%360},85%,58%)`):(i===0?'#7c3aed':i%2?'#a78bfa':'#8b5cf6');c.beginPath();c.arc(x,y,i===0?14:12,0,7);c.fill();
       if(i===0){const ex=g.dir.x*5,ey=g.dir.y*5;c.fillStyle='#fff';c.beginPath();c.arc(x+ex-g.dir.y*5,y+ey-g.dir.x*5,4,0,7);c.arc(x+ex+g.dir.y*5,y+ey+g.dir.x*5,4,0,7);c.fill();c.fillStyle='#111';c.beginPath();c.arc(x+ex*1.3-g.dir.y*5,y+ey*1.3-g.dir.x*5,2,0,7);c.arc(x+ex*1.3+g.dir.y*5,y+ey*1.3+g.dir.x*5,2,0,7);c.fill();}});
     drawParts(c,g.parts);drawPops(c,g.pops);
   };
@@ -1451,11 +1451,11 @@ function createBowling(){
     if(g.state==='aim'||g.state==='spin'){
       const x0=g.state==='aim'?aimX():g.bx,sp=g.state==='spin'?g.spin:0;
       dashLine(c,path(x0,sp),'rgba(255,255,255,.75)',3,-g.t*30);
-      c.fillStyle='#7c3aed';c.beginPath();c.arc(x0,FY,BR,0,7);c.fill();c.fillStyle='#1e1b4b';[[-4,-4],[3,-5],[0,2]].forEach(([dx,dy])=>{c.beginPath();c.arc(x0+dx,FY+dy,2,0,7);c.fill();});
+      c.fillStyle=LOOKS.bowling?'#172554':'#7c3aed';c.beginPath();c.arc(x0,FY,BR,0,7);c.fill();c.fillStyle=LOOKS.bowling?'#fde047':'#1e1b4b';[[-4,-4],[3,-5],[0,2]].forEach(([dx,dy])=>{c.beginPath();c.arc(x0+dx,FY+dy,2,0,7);c.fill();});if(LOOKS.bowling){c.fillStyle='#c4b5fd';[[-7,4],[6,3],[-1,-8]].forEach(([dx,dy])=>{c.beginPath();c.arc(x0+dx,FY+dy,1.2,0,7);c.fill();});}
       if(g.state==='spin'){c.fillStyle='rgba(15,23,42,.7)';rr(c,40,500,280,26,13);c.fill();c.fillStyle='#fde047';c.beginPath();c.arc(180+g.spin*126,513,9,0,7);c.fill();c.fillStyle='#fff';c.font='700 11px Fredoka, sans-serif';c.fillText('⟲ SPIN ⟳',180,513);}
       else hintText(c,'Tap to pick your spot',512);
     }
-    if(g.ball&&(g.state==='roll')){const b=g.ball,r=BR*(1-b.s*.35);c.fillStyle='#7c3aed';c.beginPath();c.arc(b.x,b.y,r,0,7);c.fill();}
+    if(g.ball&&(g.state==='roll')){const b=g.ball,r=BR*(1-b.s*.35);c.fillStyle=LOOKS.bowling?'#172554':'#7c3aed';c.beginPath();c.arc(b.x,b.y,r,0,7);c.fill();if(LOOKS.bowling){c.fillStyle='#fde047';c.beginPath();c.arc(b.x-r*.3,b.y-r*.3,r*.18,0,7);c.fill();}}
     drawParts(c,g.parts);drawPops(c,g.pops);
   };
   return g;

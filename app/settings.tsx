@@ -13,6 +13,7 @@ import { sfx } from '../src/sfx.ts';
 import { shareBackupFile, copyBackup, pickBackupFile, pasteText } from '../src/backupIO.ts';
 import { GrownUpGate } from '../src/components/GrownUpGate.tsx';
 import { APP_VERSION, SHOW_SUPPORT_LINK, SUPPORT_URL, PRIVACY_URL } from '../src/config.ts';
+import { adjustTickets, waitingReqs } from '../src/logic/prizes.ts';
 
 function SettingsScreenInner() {
   const { root, kid, updateKid, updateRoot, choosePin, toast, restore, undoRestore, hasUndo } = useApp();
@@ -132,6 +133,14 @@ function SettingsScreenInner() {
       </Card>
 
       <Card>
+        <H>🎟️ Tickets & prizes</H>
+        <P small>Kids win tickets in games (better scores win more) and trade them at the Prize Counter. Tickets are only ever earned, never bought.</P>
+        <P small>{me.name} has {plural(kid.tickets, 'ticket')} · {plural(kid.owned.length, 'prize')} · won {kid.tix.earned} in all</P>
+        <Row>{[-10, 10, 25, 50].map(n => <Btn key={n} small kind={n < 0 ? 'ghost' : 'primary'} label={n < 0 ? `−${-n}` : `+${n} 🎟️`} onPress={() => { updateKid(k => adjustTickets(k, n)); if (n > 0) sfx('coin', s.sfx); }} />)}</Row>
+        <Btn kind="secondary" label={`👨‍👩‍👧 Family prizes${waitingReqs(root).length ? ` · ${waitingReqs(root).length} waiting` : ''}`} onPress={() => router.push('/family-prizes')} />
+      </Card>
+
+      <Card>
         <H>🔒 Grown-up tools</H>
         <Text style={{ fontSize: 16 * f, color: c.ink, fontWeight: '700' }}>Grown-up PIN</Text>
         <P small>{root.pin ? 'On. My Words, Settings, Help and the report need the PIN.' : 'Off. Anyone can change words, tokens and settings.'}</P>
@@ -177,6 +186,7 @@ function SettingsScreenInner() {
         <P small>Word lists are kept.</P>
         <Row>
           <Btn small kind="danger" label="Tokens" onPress={() => confirm('Reset tokens?', `${me.name}'s tokens go back to 0.`, () => { updateKid(k => { k.tokens = 0; }); toast('Reset done'); }, 'Reset')} />
+          <Btn small kind="danger" label="Tickets & prizes" onPress={() => confirm('Reset tickets and prizes?', `${me.name}'s tickets, prizes and family prize history are cleared. Waiting requests are cancelled.`, () => { updateKid(k => { k.tickets = 0; k.owned = []; k.looksOn = []; k.goal = ''; k.famReq = []; k.tix = { earned: 0, spent: 0 }; k.tday = {}; }); updateRoot(r => { const p = r.profiles.find(x => x.id === r.active); if (p && !AVATARS.includes(p.avatar)) p.avatar = '🦄'; }); toast('Reset done'); }, 'Reset')} />
           <Btn small kind="danger" label="Best scores" onPress={() => confirm('Reset best scores?', 'All game best scores are cleared.', () => { updateKid(k => { k.best = {}; }); toast('Reset done'); }, 'Reset')} />
           <Btn small kind="danger" label="Word progress" onPress={() => confirm('Reset word progress?', 'Mastered, tricky and review history are cleared.', () => { updateKid(k => { k.stats = {}; k.hist = {}; k.spelled = 0; }); toast('Reset done'); }, 'Reset')} />
         </Row>

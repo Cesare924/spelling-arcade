@@ -38,6 +38,13 @@ const FAQ: [string, [string, string][]][] = [
     ['How do tokens work?', 'Each correct word earns a token (or 2 on the first try, if you turn that on). Games cost 1 to 3 tokens. Add bonus tokens in Settings › Grown-up tools.'],
     ['Can I limit game time?', 'Yes. Settings › Tokens & games › Games per day or Play time per day. A game in progress ends with "Time for a break!" when time runs out.'],
     ['Can I hide a game?', 'Yes. Settings › Games to show. Kids can also mark favorites with the ☆ on each game.']]],
+  ['🎟️ Tickets & the Prize Counter', [
+    ['How do tickets work?', 'Every game pays tickets: 1 for playing, 3, 5 or 8 for a bronze, silver or gold score, 4 more for beating a best score, and sometimes a 25-ticket jackpot. Each game has its own score levels, so every game is worth playing. Tickets belong to each kid and never expire.'],
+    ['Can tickets be bought?', 'No. Tickets are only earned by playing, and games are only played with tokens earned by spelling. Nothing in the app costs money.'],
+    ['What can kids get at the Prize Counter?', 'Stickers for a sticker book, new avatars, game looks (like a rainbow snake or candy letter tiles), and top-shelf prizes that sit on the home screen. All just for fun: none of them make games easier.'],
+    ['What are family prizes?', 'Real-world rewards you create in Settings › Tickets & prizes › Family prizes, like "Pick dinner" or "30 minutes at the park." Set the ticket price, how often it can be picked, and which kids can pick it.'],
+    ['How do family prize requests work?', "When a kid picks a family prize, its tickets are set aside and the request waits for you in Family prizes. \"OK it\" completes it; \"Not now\" gives the tickets back."],
+    ['Can I give or take away tickets?', 'Yes. Settings › Tickets & prizes has bonus buttons. Settings › Reset › Tickets & prizes clears a kid\'s tickets and prizes.']]],
   ['🔒 PIN & privacy', [
     ['What does the PIN protect?', "My Words, Settings, the progress report and this Help page. It stays unlocked for 10 minutes after you enter it. It keeps young kids out but isn't strong security."],
     ['I forgot the PIN.', 'On the PIN pad, tap "Forgot PIN?" and answer the multiplication question to remove it.'],

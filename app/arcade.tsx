@@ -63,6 +63,11 @@ export default function Arcade() {
             <Btn label="✏️ Earn tokens" onPress={() => router.replace('/practice')} />
           </>}
         {!lim && extra.length > 0 && <P small>{extra.join(' · ')}</P>}
+        <Pressable onPress={() => router.push('/prizes')} accessibilityRole="button" accessibilityLabel={`${kid.tickets} tickets. Open the Prize Counter`}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 12, backgroundColor: '#fff1f3', borderWidth: 1, borderColor: '#fda4af' }}>
+          <Text style={{ fontSize: 15 * f, fontWeight: '800', color: '#9f1239', flex: 1 }}>🎟️ {kid.tickets} tickets · better scores win more!</Text>
+          <Text style={{ fontSize: 14 * f, fontWeight: '900', color: '#9f1239' }}>Prizes ›</Text>
+        </Pressable>
       </Card>
       {!ids.length && <P>No games are turned on. A grown-up can turn them on in Settings.</P>}
       {favs.length > 0 && <H>⭐ My favorites</H>}
@@ -74,6 +79,7 @@ export default function Arcade() {
         ['🪙', `Each game costs ${plural(cost, 'token')}.`],
         ['☆', 'Tap the star on a game to make it a favorite. Favorites go to the top.'],
         ['▶️', 'Tap Play. The game shows you how to play before it starts.'],
+        ['🎟️', 'Every game wins tickets. Better scores and new bests win more! Trade tickets at the Prize Counter.'],
         ['✏️', 'Need more tokens? Practice spelling to earn them!'],
       ]} />
     </Screen>

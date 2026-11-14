@@ -31,6 +31,9 @@ function ReportInner() {
         <Stat n={kid.stars} label="stars earned ⭐" />
         <Stat n={kid.spelled} label="words spelled" />
         <Stat n={kid.tokens} label="tokens 🪙" />
+        <Stat n={kid.tickets} label="tickets 🎟️" />
+        <Stat n={kid.tix.earned} label="tickets won in all" />
+        <Stat n={kid.owned.length} label="prizes 🎁" />
       </Card>
 
       <Card>

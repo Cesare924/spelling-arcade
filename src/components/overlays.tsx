@@ -122,7 +122,7 @@ export function KidPicker({ visible, onClose }: { visible: boolean; onClose: () 
             <Text style={{ fontSize: 36 }}>{p.avatar}</Text>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 18 * f, fontWeight: '800', color: c.ink }}>{p.name}</Text>
-              <Text style={{ color: c.soft, fontSize: 14 * f }}>🪙 {k.tokens} · {plural(allWords(k).length, 'word')}</Text>
+              <Text style={{ color: c.soft, fontSize: 14 * f }}>🪙 {k.tokens} · 🎟️ {k.tickets} · {plural(allWords(k).length, 'word')}</Text>
             </View>
           </Pressable>
         );
