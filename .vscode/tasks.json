@@ -31,6 +31,32 @@
       }
     },
     {
+      "label": "Pair phone over Wi-Fi",
+      "detail": "One time per phone. On the phone: Wireless debugging > Pair device with pairing code.",
+      "type": "shell",
+      "command": "adb pair ${input:pairAddress} ${input:pairCode}",
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+          "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+        }
+      }
+    },
+    {
+      "label": "Connect phone over Wi-Fi",
+      "detail": "Use the IP address & Port shown at the top of the phone's Wireless debugging screen.",
+      "type": "shell",
+      "command": "adb connect ${input:connectAddress}; adb devices",
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+          "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+        }
+      }
+    },
+    {
       "label": "Build & install on Android",
       "detail": "Rebuilds the native app and installs it on the emulator or your phone. Needed after icon or package changes.",
       "type": "shell",
@@ -144,6 +170,23 @@
         }
       },
       "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "pairAddress",
+      "type": "promptString",
+      "description": "Pairing address from the phone's 'Pair device with pairing code' screen (for example 192.168.1.42:37123)"
+    },
+    {
+      "id": "pairCode",
+      "type": "promptString",
+      "description": "6-digit Wi-Fi pairing code shown on the phone"
+    },
+    {
+      "id": "connectAddress",
+      "type": "promptString",
+      "description": "IP address & Port from the top of the phone's Wireless debugging screen (for example 192.168.1.42:41567)"
     }
   ]
 }
