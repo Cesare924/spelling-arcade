@@ -130,7 +130,7 @@ export default function Words() {
 
       <Card>
         <H>📘 Grade-level word lists</H>
-        <P small>30 weeks of words for each grade band, grouped by spelling pattern.</P>
+        <P small>40 weeks of words for each grade band, grouped by spelling pattern and topic.</P>
         <Chips value={band} onChange={v => { setBand(v); setWeek(0); }} options={(Object.keys(BANDS) as Band[]).sort((a, b) => a === 'k1' ? -1 : b === 'k1' ? 1 : a.localeCompare(b)).map(b => ({ v: b, label: 'Gr ' + BANDS[b] }))} />
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
           {GRADE_LISTS[band].map((_, i) => {

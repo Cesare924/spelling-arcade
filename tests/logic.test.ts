@@ -47,7 +47,7 @@ test('grade list adds once', () => {
   const k = kidOf(normalizeRoot(null));
   assert.ok(addGradeList(k, '23', 0));
   assert.equal(addGradeList(k, '23', 0), null);
-  assert.equal(GRADE_LISTS['23'].length, 30);
+  assert.equal(GRADE_LISTS['23'].length, 40);
 });
 
 test('first-try correct earns a token and moves the review box up', () => {
@@ -143,4 +143,13 @@ test('scan text becomes words', () => {
   assert.deepEqual(got, ['friend', 'night']);
 });
 
+
+test('every grade-list word has a built-in sentence that uses it', async () => {
+  const { BUILT_SENT } = await import('../src/data/sentences.ts');
+  const { gradeWords } = await import('../src/data/gradeLists.ts');
+  for (const b of ['k1', '23', '46'] as const) for (let i = 0; i < GRADE_LISTS[b].length; i++) for (const w of gradeWords(b, i)) {
+    const s = BUILT_SENT[b][w]; assert.ok(s, `${b} ${w} has no sentence`);
+    assert.ok(s.toLowerCase().includes(w.toLowerCase()), `${b} ${w}: sentence does not use the word`);
+  }
+});
 console.log(`\n${passed} tests passed`);

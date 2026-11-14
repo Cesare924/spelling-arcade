@@ -19,7 +19,7 @@ const FAQ: [string, [string, string][]][] = [
   ['📝 Word lists & scanning', [
     ["How do I add this week's school words?", 'My Words › New list, then type the words (spaces or commas between them) or tap Scan list to take a photo of the paper.'],
     ['How does scanning work?', 'Take a clear, bright photo of the list. The phone reads the words itself (nothing is uploaded), then you can tap any it got wrong to skip them before adding.'],
-    ['What are the grade-level lists?', 'Thirty weeks of words for each grade band (K–1, 2–3, 4–6), grouped by spelling pattern. Add any week from My Words › Grade-level word lists.'],
+    ['What are the grade-level lists?', 'Forty weeks of words for each grade band (K–1, 2–3, 4–6), grouped by spelling pattern and topic, with a built-in sentence for every word. Add any week from My Words › Grade-level word lists.'],
     ['How do test dates work?', 'Give a list a test date in My Words. During the week before, the home screen shows a reminder, that list comes first in practice, and the whole-year mix includes more of its words.'],
     ['Can I add my own sentence for a word?', 'Yes. In My Words, hold a word and type a short sentence that uses it. Kids hear it with the 💬 Sentence button, with the word blanked out on screen.'],
     ['Are old lists kept?', 'Yes. Every list stays all year. Practice any past list, the whole-year mix, or every word.']]],
