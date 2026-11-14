@@ -1,14 +1,57 @@
 {
   // Run any of these from Terminal > Run Task (or Ctrl+Shift+B for the build).
+
   "version": "2.0.0",
   "tasks": [
+    {
+      "label": "Start emulator",
+      "detail": "Starts the Android emulator in its most stable mode. Leave it running.",
+      "type": "shell",
+      "command": "emulator -avd Medium_Phone_API_37.0 -no-snapshot-load -gpu swiftshader_indirect",
+      "isBackground": true,
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+          "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+        }
+      }
+    },
+    {
+      "label": "Check Android connection",
+      "detail": "Lists connected phones and emulators. Look for 'device' next to the name.",
+      "type": "shell",
+      "command": "adb kill-server; adb devices",
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+          "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+        }
+      }
+    },
     {
       "label": "Build & install on Android",
       "detail": "Rebuilds the native app and installs it on the emulator or your phone. Needed after icon or package changes.",
       "type": "shell",
       "command": ".\\build-android.bat",
-      "options": { "shell": { "executable": "cmd.exe", "args": ["/d", "/c"] } },
-      "group": { "kind": "build", "isDefault": true },
+      "options": {
+        "shell": {
+          "executable": "cmd.exe",
+          "args": [
+            "/d",
+            "/c"
+          ]
+        },
+        "env": {
+          "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+          "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+        }
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
       "problemMatcher": []
     },
     {
@@ -17,7 +60,13 @@
       "type": "shell",
       "command": "npx expo start --dev-client",
       "isBackground": true,
-      "problemMatcher": []
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+          "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+        }
+      }
     },
     {
       "label": "Start app on Android",
@@ -25,36 +74,75 @@
       "type": "shell",
       "command": "npx expo start --dev-client --android",
       "isBackground": true,
-      "problemMatcher": []
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+          "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+        }
+      }
     },
     {
       "label": "Run tests",
       "detail": "Checks the app's rules (practice, review, backups, scanning).",
       "type": "shell",
       "command": "npm test",
-      "group": { "kind": "test", "isDefault": true },
-      "problemMatcher": []
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+          "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+        }
+      }
     },
     {
       "label": "Check types",
       "detail": "Looks for code mistakes TypeScript can catch.",
       "type": "shell",
       "command": "npm run typecheck",
-      "problemMatcher": "$tsc"
+      "problemMatcher": "$tsc",
+      "options": {
+        "env": {
+          "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+          "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+        }
+      }
     },
     {
       "label": "Pack games",
       "detail": "Run after editing games-web/games.js so the app picks up the change.",
       "type": "shell",
       "command": "npm run pack-games",
-      "problemMatcher": []
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+          "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+        }
+      }
     },
     {
       "label": "Save build log",
       "detail": "Re-runs the Android build and saves the output to build-log.txt (for Claude to read).",
       "type": "shell",
       "command": ".\\build-log.bat",
-      "options": { "shell": { "executable": "cmd.exe", "args": ["/d", "/c"] } },
+      "options": {
+        "shell": {
+          "executable": "cmd.exe",
+          "args": [
+            "/d",
+            "/c"
+          ]
+        },
+        "env": {
+          "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+          "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+        }
+      },
       "problemMatcher": []
     }
   ]
