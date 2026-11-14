@@ -8,3 +8,6 @@ android/
 .env*
 .cx/
 build-log.txt
+.idea/
+.vscode/.react/
+*.log
