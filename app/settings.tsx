@@ -11,7 +11,7 @@ import { usVoices, say, type VoiceInfo } from '../src/speech.ts';
 import { sfx } from '../src/sfx.ts';
 import { shareBackupFile, copyBackup, pickBackupFile, pasteText } from '../src/backupIO.ts';
 import { GrownUpGate } from '../src/components/GrownUpGate.tsx';
-import { APP_VERSION, SHOW_SUPPORT_LINK, SUPPORT_URL, WEBSITE_URL } from '../src/config.ts';
+import { APP_VERSION, SHOW_SUPPORT_LINK, SUPPORT_URL, PRIVACY_URL } from '../src/config.ts';
 
 export default function SettingsScreen() {
   const { root, kid, updateKid, updateRoot, choosePin, toast, restore, undoRestore, hasUndo } = useApp();
@@ -201,7 +201,7 @@ export default function SettingsScreen() {
           </Pressable>
           <P small>Opens buymeacoffee.com in your browser. Completely optional; the app is the same either way.</P>
         </>}
-        {!!WEBSITE_URL && <Btn kind="secondary" small label="🔒 Privacy policy & website" onPress={() => setGateUrl(WEBSITE_URL)} />}
+        <Btn kind="secondary" small label="🔒 Privacy policy" onPress={() => setGateUrl(PRIVACY_URL)} />
         <P small>Version {APP_VERSION}</P>
       </Card>
       <GrownUpGate url={gateUrl} onClose={() => setGateUrl(null)} />
