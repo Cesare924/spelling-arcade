@@ -5,10 +5,10 @@ import { Linking, Modal, Text, View } from 'react-native';
 import { useApp } from '../store/AppContext.tsx';
 import { Btn, H, P, Field, Row, useLook } from './ui.tsx';
 
-// Easy for a grown-up, hard for a young child: a times-table fact from 6 to 9.
+// Quick for a grown-up: adding two numbers, like 24 + 15.
 function question() {
-  const a = 6 + Math.floor(Math.random() * 4), b = 6 + Math.floor(Math.random() * 4);
-  return { text: `What is ${a} × ${b}?`, answer: a * b };
+  const a = 11 + Math.floor(Math.random() * 19), b = 11 + Math.floor(Math.random() * 9);
+  return { text: `What is ${a} + ${b}?`, answer: a + b };
 }
 
 export function GrownUpGate({ url, onClose }: { url: string | null; onClose: () => void }) {
