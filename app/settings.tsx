@@ -10,6 +10,8 @@ import { GAMES } from '../src/games/meta.ts';
 import { usVoices, say, type VoiceInfo } from '../src/speech.ts';
 import { sfx } from '../src/sfx.ts';
 import { shareBackupFile, copyBackup, pickBackupFile, pasteText } from '../src/backupIO.ts';
+import { GrownUpGate } from '../src/components/GrownUpGate.tsx';
+import { APP_VERSION, SHOW_SUPPORT_LINK, SUPPORT_URL, WEBSITE_URL } from '../src/config.ts';
 
 export default function SettingsScreen() {
   const { root, kid, updateKid, updateRoot, choosePin, toast, restore, undoRestore, hasUndo } = useApp();
@@ -20,6 +22,7 @@ export default function SettingsScreen() {
   const [pending, setPending] = useState<{ r: Root; savedAt: string | null } | null>(null);
   const [pasteBox, setPasteBox] = useState(false);
   const [pasteVal, setPasteVal] = useState('');
+  const [gateUrl, setGateUrl] = useState<string | null>(null);
   useEffect(() => { usVoices().then(setVoices); }, []);
   const me = root.profiles.find(p => p.id === root.active)!;
   const day = kid.day.date === today() ? kid.day : { games: 0, ms: 0 };
@@ -186,6 +189,22 @@ export default function SettingsScreen() {
         <Toggle label="🌓 High contrast" value={s.hc} onChange={v => set('hc', v)} />
         <Toggle label="🧘 Calmer motion" help="No screen shaking in games" value={s.calm} onChange={v => set('calm', v)} />
       </Card>
+
+      <Card>
+        <H>⭐ About & support</H>
+        <P>Spelling Stars is free, with no ads and no tracking. Everything stays on this device.</P>
+        {SHOW_SUPPORT_LINK && <>
+          <P>If it's helping your family, you can buy me a coffee to help cover app-store fees and keep new games coming. Thank you!</P>
+          <Pressable onPress={() => setGateUrl(SUPPORT_URL)} accessibilityRole="button" accessibilityLabel="Buy me a coffee. Opens a website after a grown-up check."
+            style={({ pressed }) => ({ backgroundColor: '#ffdd00', borderRadius: 14, paddingVertical: 14 * f, alignItems: 'center', opacity: pressed ? .85 : 1, borderWidth: 2, borderColor: '#e5b800' })}>
+            <Text style={{ color: '#1e1b4b', fontSize: 18 * f, fontWeight: '900' }}>☕ Buy me a coffee</Text>
+          </Pressable>
+          <P small>Opens buymeacoffee.com in your browser. Completely optional; the app is the same either way.</P>
+        </>}
+        {!!WEBSITE_URL && <Btn kind="secondary" small label="🔒 Privacy policy & website" onPress={() => setGateUrl(WEBSITE_URL)} />}
+        <P small>Version {APP_VERSION}</P>
+      </Card>
+      <GrownUpGate url={gateUrl} onClose={() => setGateUrl(null)} />
     </Screen>
   );
 }

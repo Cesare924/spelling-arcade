@@ -8,6 +8,7 @@ import { AVATARS, profileOf, uid } from '../src/logic/state.ts';
 import { BANDS, GRADE_LISTS, gradeWords, type Band } from '../src/data/gradeLists.ts';
 import { say } from '../src/speech.ts';
 import { sfx } from '../src/sfx.ts';
+import { SHOW_SUPPORT_LINK } from '../src/config.ts';
 
 const N = 5;
 
@@ -101,6 +102,7 @@ export default function Setup() {
           <Chips label="Voice" value={kid.set.voiceGender} onChange={v => { updateKid(k => { k.set.voiceGender = v; k.set.voiceName = ''; }); setTimeout(() => say('cat', { ...kid.set, voiceGender: v, voiceName: '' }), 50); }}
             options={[{ v: 'any', label: 'Any' }, { v: 'female', label: '👩 Female' }, { v: 'male', label: '👨 Male' }]} />
           <P small>No sound? Check the volume and silent mode. The Help page has a Sound check.</P>
+          {SHOW_SUPPORT_LINK && <P small style={{ marginTop: 6 }}>⭐ Spelling Stars is free with no ads. If you enjoy it, there's a way to support it in Settings › About & support.</P>}
         </>}
         <Row style={{ marginTop: 6 }}>
           {step > 0 && <Btn kind="ghost" label="← Back" onPress={() => setStep(step - 1)} />}
