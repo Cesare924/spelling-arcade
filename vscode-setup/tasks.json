@@ -21,7 +21,7 @@
       "label": "Check Android connection",
       "detail": "Lists connected phones and emulators. Look for 'device' next to the name.",
       "type": "shell",
-      "command": "adb kill-server; adb devices",
+      "command": "adb devices",
       "problemMatcher": [],
       "options": {
         "env": {
