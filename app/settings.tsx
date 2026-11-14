@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useApp } from '../src/store/AppContext.tsx';
+import { GrownUpOnly } from '../src/components/GrownUpOnly.tsx';
 import { Screen, Card, H, P, Chips, Btn, Row, Field, Toggle, useLook } from '../src/components/ui.tsx';
 import { AVATARS, GAME_IDS, addKid, removeKid, plural, today, type Settings, type GameId, type Root } from '../src/logic/state.ts';
 import { backupText, readBackup, backupSummary, backupAge } from '../src/logic/backup.ts';
@@ -13,7 +14,7 @@ import { shareBackupFile, copyBackup, pickBackupFile, pasteText } from '../src/b
 import { GrownUpGate } from '../src/components/GrownUpGate.tsx';
 import { APP_VERSION, SHOW_SUPPORT_LINK, SUPPORT_URL, PRIVACY_URL } from '../src/config.ts';
 
-export default function SettingsScreen() {
+function SettingsScreenInner() {
   const { root, kid, updateKid, updateRoot, choosePin, toast, restore, undoRestore, hasUndo } = useApp();
   const { c, f } = useLook();
   const s = kid.set;
@@ -207,4 +208,8 @@ export default function SettingsScreen() {
       <GrownUpGate url={gateUrl} onClose={() => setGateUrl(null)} />
     </Screen>
   );
+}
+
+export default function SettingsScreen() {
+  return <GrownUpOnly><SettingsScreenInner /></GrownUpOnly>;
 }

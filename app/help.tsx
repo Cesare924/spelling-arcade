@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isSupported as scanSupported } from 'expo-text-extractor';
 import { useApp } from '../src/store/AppContext.tsx';
+import { GrownUpOnly } from '../src/components/GrownUpOnly.tsx';
 import { Screen, Card, H, P, Btn, Row, Field, useLook } from '../src/components/ui.tsx';
 import { plural, profileOf } from '../src/logic/state.ts';
 import { backupAge } from '../src/logic/backup.ts';
@@ -50,7 +51,7 @@ const FAQ: [string, [string, string][]][] = [
 ];
 const SOUND_TIPS = 'Turn the volume up and turn off silent mode. Make sure "Spoken words" is on in Settings › Comfort. Check the phone has an English (US) voice: Android Settings › Text-to-speech, or iPhone Settings › Accessibility › Spoken Content › Voices.';
 
-export default function Help() {
+function HelpInner() {
   const { root, kid, updateKid } = useApp();
   const { c, f } = useLook();
   const [gateUrl, setGateUrl] = useState<string | null>(null);
@@ -144,4 +145,8 @@ export default function Help() {
       <GrownUpGate url={gateUrl} onClose={() => setGateUrl(null)} />
     </Screen>
   );
+}
+
+export default function Help() {
+  return <GrownUpOnly><HelpInner /></GrownUpOnly>;
 }

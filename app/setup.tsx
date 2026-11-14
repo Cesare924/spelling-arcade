@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useApp } from '../src/store/AppContext.tsx';
+import { GrownUpOnly } from '../src/components/GrownUpOnly.tsx';
 import { Screen, Card, H, P, Btn, Row, Field, Chips, useLook } from '../src/components/ui.tsx';
 import { AVATARS, profileOf, uid } from '../src/logic/state.ts';
 import { BANDS, GRADE_LISTS, gradeWords, type Band } from '../src/data/gradeLists.ts';
@@ -12,7 +13,7 @@ import { SHOW_SUPPORT_LINK } from '../src/config.ts';
 
 const N = 5;
 
-export default function Setup() {
+function SetupInner() {
   const { root, kid, updateKid, updateRoot, choosePin, toast } = useApp();
   const { c, f } = useLook();
   const [step, setStep] = useState(0);
@@ -111,4 +112,10 @@ export default function Setup() {
       </Card>
     </Screen>
   );
+}
+
+// First-time setup is open to anyone; running it again later is a grown-up action.
+export default function Setup() {
+  const { root } = useApp();
+  return root.setupDone ? <GrownUpOnly><SetupInner /></GrownUpOnly> : <SetupInner />;
 }

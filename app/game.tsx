@@ -30,11 +30,15 @@ export default function Game() {
   // The setup is written straight into the page, so it is there before any game code runs.
   const html = useMemo(() => GAME_HTML.replace('<head>', () => `<head><script>window.__SS_INIT=${JSON.stringify(init).replace(/</g, '\\u003c')};</script>`), [init]);
 
+  // Messages from the game page are checked: known types only, the cost is always the
+  // grown-up's setting, and numbers are limited to sensible ranges.
   function onMessage(e: WebViewMessageEvent) {
-    let m: any; try { m = JSON.parse(e.nativeEvent.data); } catch { return; }
-    if (m.t === 'spend') updateKid(k => { k.tokens = Math.max(0, k.tokens - (+m.cost || 0)); dayRec(k).games++; });
-    else if (m.t === 'ms') updateKid(k => { dayRec(k).ms += Math.max(0, Math.min(60000, +m.ms || 0)); });
-    else if (m.t === 'end') updateKid(k => { const s = Math.floor(+m.score || 0), prev = k.best[id]; if (prev == null || s > prev) k.best[id] = s; });
+    let m: any; try { m = JSON.parse(String(e.nativeEvent.data).slice(0, 2000)); } catch { return; }
+    if (!m || typeof m !== 'object') return;
+    const n = (v: unknown, hi: number) => { const x = Math.floor(Number(v)); return Number.isFinite(x) ? Math.min(hi, Math.max(0, x)) : 0; };
+    if (m.t === 'spend') updateKid(k => { k.tokens = Math.max(0, k.tokens - k.set.cost); dayRec(k).games++; });
+    else if (m.t === 'ms') updateKid(k => { dayRec(k).ms += n(m.ms, 60000); });
+    else if (m.t === 'end') updateKid(k => { const s = n(m.score, 1e6), prev = k.best[id]; if (prev == null || s > prev) k.best[id] = s; });
     else if (m.t === 'speak') sayFromGame(String(m.text || '').slice(0, 300), !!m.raw, kid.set);
     else if (m.t === 'exit') { stopSpeech(); if (router.canGoBack()) router.back(); else router.replace('/arcade'); }
   }
@@ -49,6 +53,15 @@ export default function Game() {
           onMessage={onMessage}
           javaScriptEnabled
           mediaPlaybackRequiresUserAction={false}
+          // The game page is self-contained: it may not load or open anything else.
+          onShouldStartLoadWithRequest={req => !req.url || req.url.startsWith('about:') || req.url.startsWith('data:')}
+          allowFileAccess={false}
+          allowFileAccessFromFileURLs={false}
+          allowUniversalAccessFromFileURLs={false}
+          javaScriptCanOpenWindowsAutomatically={false}
+          geolocationEnabled={false}
+          allowsLinkPreview={false}
+          incognito
           setSupportMultipleWindows={false}
           scrollEnabled={false}
           bounces={false}

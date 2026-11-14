@@ -71,8 +71,16 @@ export function daysUntil(s: string): number | null {
 export const weekName = () => 'Week of ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
 /* ---------- normalize (defensive load of saved or backed-up data) ---------- */
-const strs = (a: unknown): string[] => Array.isArray(a) ? a.filter((w): w is string => typeof w === 'string').slice(0, 200) : [];
-const isObj = (x: unknown): x is Record<string, any> => !!x && typeof x === 'object';
+// Saved data and backup files are treated as untrusted: every value is checked and limited,
+// so a damaged or hand-edited backup can't break the app or set impossible values.
+const WORD_RX = /^[A-Za-z][A-Za-z'\-]{0,23}$/;
+const strs = (a: unknown): string[] => Array.isArray(a) ? a.filter((w): w is string => typeof w === 'string' && WORD_RX.test(w)).slice(0, 200) : [];
+const isObj = (x: unknown): x is Record<string, any> => !!x && typeof x === 'object' && !Array.isArray(x);
+const BAD_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+/** Own keys of a plain object, skipping keys that could change object prototypes. */
+const safeKeys = (o: Record<string, any>, max: number) => Object.keys(o).filter(k => !BAD_KEYS.has(k)).slice(0, max);
+const num = (v: unknown, lo: number, hi: number, dflt: number) => { const n = Math.floor(Number(v)); return Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : dflt; };
+const oneOf = <T,>(v: unknown, allowed: readonly T[], dflt: T): T => (allowed as readonly unknown[]).includes(v) ? v as T : dflt;
 
 export function normSet(s: unknown, legacyMuted = false): Settings {
   const src = isObj(s) ? s : {};
@@ -83,6 +91,19 @@ export function normSet(s: unknown, legacyMuted = false): Settings {
     else if (typeof src[k] === typeof DEFAULT_SET[k]) (o as any)[k] = src[k];
   }
   if (legacyMuted && !('sfx' in src)) { o.sfx = false; o.voice = false; }
+  // Choices must be ones the app offers, and numbers must be in range.
+  o.grade = oneOf(o.grade, ['k1', '23', '46'] as const, DEFAULT_SET.grade);
+  o.voiceGender = oneOf(o.voiceGender, ['any', 'female', 'male'] as const, 'any');
+  o.voiceName = String(o.voiceName).slice(0, 200);
+  o.input = oneOf(o.input, ['auto', 'tiles', 'keys'] as const, 'auto');
+  o.peek = oneOf(o.peek, ['on', 'once', 'off'] as const, 'on');
+  o.rate = oneOf(o.rate, ['slow', 'normal', 'fast'] as const, 'normal');
+  o.diff = oneOf(o.diff, ['easy', 'normal', 'hard'] as const, 'normal');
+  o.tries = num(o.tries, 1, 3, 2);
+  o.mix = num(o.mix, 5, 30, 15);
+  o.cost = num(o.cost, 1, 3, 1);
+  o.maxGames = num(o.maxGames, 0, 20, 0);
+  o.maxMin = num(o.maxMin, 0, 120, 0);
   return o;
 }
 
@@ -95,16 +116,17 @@ export function normalizeKid(d: unknown): Kid {
   if (!lists.length && strs(x.words).length) lists = [{ id: uid(), name: 'My first list', created: Date.now(), test: '', src: '', words: strs(x.words) }];
   const cur = lists.some(l => l.id === x.cur) ? x.cur : (lists.length ? lists[lists.length - 1].id : null);
   const stats: Record<string, WordStat> = {};
-  if (isObj(x.stats)) for (const k in x.stats) { const s = x.stats[k]; if (isObj(s)) stats[k] = { c: +s.c || 0, m: +s.m || 0, s: +s.s || 0, a: +s.a || 0, f: +s.f || 0, b: +s.b || 0, due: parseDay(s.due) ? s.due : '' }; }
+  const N = (v: unknown) => num(v, 0, 1e6, 0);
+  if (isObj(x.stats)) for (const k of safeKeys(x.stats, 5000)) { const s = x.stats[k]; if (isObj(s) && k.length <= 24) stats[k] = { c: N(s.c), m: N(s.m), s: N(s.s), a: N(s.a), f: N(s.f), b: num(s.b, 0, 5, 0), due: parseDay(s.due) ? s.due : '' }; }
   const hist: Kid['hist'] = {};
-  if (isObj(x.hist)) Object.keys(x.hist).filter(k => parseDay(k)).sort().slice(-90).forEach(k => { const h = x.hist[k] || {}; hist[k] = { c: +h.c || 0, m: +h.m || 0 }; });
-  const day = isObj(x.day) && x.day.date === today() ? { date: today(), games: +x.day.games || 0, ms: +x.day.ms || 0 } : { date: today(), games: 0, ms: 0 };
+  if (isObj(x.hist)) Object.keys(x.hist).filter(k => parseDay(k)).sort().slice(-90).forEach(k => { const h = isObj(x.hist[k]) ? x.hist[k] : {}; hist[k] = { c: N(h.c), m: N(h.m) }; });
+  const day = isObj(x.day) && x.day.date === today() ? { date: today(), games: num(x.day.games, 0, 1000, 0), ms: num(x.day.ms, 0, 864e5, 0) } : { date: today(), games: 0, ms: 0 };
   return {
     lists, cur, stats, hist, day,
-    stars: Math.max(0, Math.floor(+x.stars || 0)),
-    tokens: Math.max(0, Math.floor(+x.tokens || 0)),
-    spelled: Math.max(0, Math.floor(+x.spelled || 0)),
-    best: isObj(x.best) ? { ...x.best } : {},
+    stars: N(x.stars),
+    tokens: N(x.tokens),
+    spelled: N(x.spelled),
+    best: isObj(x.best) ? Object.fromEntries(safeKeys(x.best, 50).filter(k => GAME_IDS.includes(k as GameId)).map(k => [k, N(x.best[k])])) : {},
     favs: Array.isArray(x.favs) ? x.favs.filter((g: any) => GAME_IDS.includes(g)) : [],
     set: normSet(x.set, !!x.muted),
   };
@@ -112,7 +134,7 @@ export function normalizeKid(d: unknown): Kid {
 
 function strMap(x: unknown, max: number, len: number) {
   const out: Record<string, string> = {}; let n = 0;
-  if (isObj(x)) for (const k in x) if (typeof x[k] === 'string' && n < max) { out[k] = x[k].slice(0, len); n++; }
+  if (isObj(x)) for (const k of safeKeys(x, max)) if (typeof x[k] === 'string' && k.length <= 24) { out[k] = x[k].slice(0, len); n++; }
   return out;
 }
 

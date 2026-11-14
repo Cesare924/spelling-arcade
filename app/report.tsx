@@ -1,11 +1,12 @@
 import { Text, View } from 'react-native';
 import { useApp } from '../src/store/AppContext.tsx';
+import { GrownUpOnly } from '../src/components/GrownUpOnly.tsx';
 import { Screen, Card, H, P, Stat, useLook } from '../src/components/ui.tsx';
 import { allWords, trickyWords, isMastered, streak, norm, dateKey, daysUntil, parseDay, whenText, profileOf, plural, today, GAME_IDS } from '../src/logic/state.ts';
 import { BANDS } from '../src/data/gradeLists.ts';
 import { GAMES } from '../src/games/meta.ts';
 
-export default function Report() {
+function ReportInner() {
   const { root, kid } = useApp();
   const { c, f } = useLook();
   const me = profileOf(root), all = allWords(kid), tricky = trickyWords(kid);
@@ -83,4 +84,8 @@ export default function Report() {
       <P small>"Mastered" means spelled right with no misses, or right on the first try twice in a row after a miss.</P>
     </Screen>
   );
+}
+
+export default function Report() {
+  return <GrownUpOnly><ReportInner /></GrownUpOnly>;
 }

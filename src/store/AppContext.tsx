@@ -8,7 +8,7 @@ const PREV_KEY = 'spellingstars.prev';
 const UNLOCK_MS = 10 * 60 * 1000;
 
 export type PinMode = 'check' | 'set';
-export interface PinRequest { mode: PinMode; done: () => void }
+export interface PinRequest { mode: PinMode; done: () => void; cancel?: () => void }
 
 interface Ctx {
   ready: boolean;
@@ -23,7 +23,9 @@ interface Ctx {
   undoRestore: () => Promise<boolean>;
   hasUndo: boolean;
   /** Runs `fn` now if there is no PIN or it was entered recently; otherwise asks for it first. */
-  requirePin: (fn: () => void) => void;
+  requirePin: (fn: () => void, onCancel?: () => void) => void;
+  /** True when there is no PIN or it was entered in the last few minutes. */
+  isUnlocked: () => boolean;
   /** Opens the PIN pad to choose a new PIN. */
   choosePin: (fn?: () => void) => void;
   pinRequest: PinRequest | null;
@@ -86,20 +88,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const unlock = useCallback(() => { unlockedUntil.current = Date.now() + UNLOCK_MS; }, []);
-  const requirePin = useCallback((fn: () => void) => {
+  const isUnlocked = useCallback(() => !rootRef.current.pin || Date.now() < unlockedUntil.current, []);
+  const requirePin = useCallback((fn: () => void, onCancel?: () => void) => {
     if (!rootRef.current.pin || Date.now() < unlockedUntil.current) { fn(); return; }
-    setPinRequest({ mode: 'check', done: fn });
+    setPinRequest({ mode: 'check', done: fn, cancel: onCancel });
   }, [setPinRequest]);
   const choosePin = useCallback((fn?: () => void) => setPinRequest({ mode: 'set', done: fn || (() => {}) }), [setPinRequest]);
   const closePin = useCallback((ok: boolean) => {
     const cur = pinRef.current; setPinRequest(null);
     if (ok && cur) setTimeout(cur.done, 0);
-  }, []);
+    else if (!ok && cur?.cancel) setTimeout(cur.cancel, 0);
+  }, [setPinRequest]);
 
   return (
     <AppCtx.Provider value={{
       ready, root, kid: kidOf(root), updateKid, updateRoot, restore, undoRestore, hasUndo,
-      requirePin, choosePin, pinRequest, closePin, unlock, toast, toastMsg,
+      requirePin, isUnlocked, choosePin, pinRequest, closePin, unlock, toast, toastMsg,
     }}>
       {children}
     </AppCtx.Provider>

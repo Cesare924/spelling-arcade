@@ -170,6 +170,19 @@
         }
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Security audit",
+      "detail": "Checks the app's packages for known security problems (needs internet).",
+      "type": "shell",
+      "command": "npm audit --omit=dev",
+      "problemMatcher": [],
+      "options": {
+        "env": {
+          "ANDROID_HOME": "${env:LOCALAPPDATA}\\Android\\Sdk",
+          "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
+        }
+      }
     }
   ],
   "inputs": [

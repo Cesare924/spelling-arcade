@@ -6,7 +6,7 @@ The phone-app version of Spelling Stars for Android and iOS, built with Expo and
 Everything from the web version:
 - **Practice**: spell, unscramble, missing letters; tiles or keyboard; sentence and meaning buttons; peek; auto-advance; stars; spaced review; tricky words; test-date focus.
 - **My Words**: weekly lists, rename, test dates, grade-level lists (40 weeks × 3 bands, 1,120 words, each with a sentence), quick-start lists, custom sentences, **camera scanning** read on the phone (ML Kit / Apple Vision).
-- **Game Arcade**: all 16 games, favorites, best scores, token cost, daily game and time limits, hidden games, difficulty.
+- **Game Arcade**: all 27 games, favorites, best scores, token cost, daily game and time limits, hidden games, difficulty.
 - **Grown-ups**: kid profiles, PIN (with forgot-PIN check), full settings, progress report, help + FAQ + fix-a-problem checks, first-run setup, backup/restore (file, clipboard, undo) compatible with web backups.
 - **Comfort**: American male/female voices, speed, sound effects, bigger text, high contrast, calmer motion.
 

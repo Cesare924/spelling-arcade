@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useApp } from '../src/store/AppContext.tsx';
+import { GrownUpOnly } from '../src/components/GrownUpOnly.tsx';
 import { Screen, Card, Btn, H, P, Row, Chips, Field, Sheet, useLook } from '../src/components/ui.tsx';
 import { curList, norm, parseDay, dateKey, weekName, uid, plural, isMastered } from '../src/logic/state.ts';
 import { addWords, splitWords, cleanWord, builtinSent } from '../src/logic/practice.ts';
@@ -13,7 +14,7 @@ function nextWeekday(day: number, extraWeeks = 0) { // 5 = Friday
   const d = new Date(); const add = ((day - d.getDay() + 7) % 7) || 7; d.setDate(d.getDate() + add + extraWeeks * 7); return dateKey(d);
 }
 
-export default function Words() {
+function WordsInner() {
   const { kid, root, updateKid, updateRoot, toast } = useApp();
   const { c, f } = useLook();
   const [text, setText] = useState('');
@@ -161,4 +162,8 @@ export default function Words() {
       </Sheet>
     </Screen>
   );
+}
+
+export default function Words() {
+  return <GrownUpOnly><WordsInner /></GrownUpOnly>;
 }

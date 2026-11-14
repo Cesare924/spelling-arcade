@@ -6,13 +6,14 @@ import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { extractTextFromImage, isSupported } from 'expo-text-extractor';
 import { useApp } from '../src/store/AppContext.tsx';
+import { GrownUpOnly } from '../src/components/GrownUpOnly.tsx';
 import { Screen, Card, Btn, H, P, Row, useLook } from '../src/components/ui.tsx';
 import { curList, weekName, plural } from '../src/logic/state.ts';
 import { addWords } from '../src/logic/practice.ts';
 import { wordsFromScan } from '../src/logic/scan.ts';
 import { sfx } from '../src/sfx.ts';
 
-export default function Scan() {
+function ScanInner() {
   const { kid, updateKid, toast } = useApp();
   const { c, f } = useLook();
   const [busy, setBusy] = useState(false);
@@ -82,4 +83,8 @@ export default function Scan() {
       )}
     </Screen>
   );
+}
+
+export default function Scan() {
+  return <GrownUpOnly><ScanInner /></GrownUpOnly>;
 }

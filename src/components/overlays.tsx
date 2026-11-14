@@ -18,6 +18,12 @@ export function PinPad() {
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState(false);
   const [forgot, setForgot] = useState<{ q: string; a: number } | null>(null);
+  // Slows down guessing: after 5 wrong PINs, wait 30 seconds (then 60, 120...).
+  const [fails, setFails] = useState(0);
+  const [lockedUntil, setLockedUntil] = useState(0);
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => { if (lockedUntil <= Date.now()) return; const t = setInterval(() => setNow(Date.now()), 500); return () => clearInterval(t); }, [lockedUntil]);
+  const lockLeft = Math.max(0, Math.ceil((lockedUntil - now) / 1000));
   const [ans, setAns] = useState('');
 
   useEffect(() => {
@@ -29,8 +35,12 @@ export function PinPad() {
 
   function done(code: string) {
     if (step === 'check') {
-      if (code === root.pin) { unlock(); closePin(true); }
-      else { setBuf(''); setErr(true); sfx('nope', kid.set.sfx); setMsg("That's not it. Try again."); }
+      if (code === root.pin) { setFails(0); unlock(); closePin(true); }
+      else {
+        const n = fails + 1; setFails(n); setBuf(''); setErr(true); sfx('nope', kid.set.sfx);
+        if (n >= 5) { const wait = 30000 * Math.pow(2, Math.min(4, n - 5)); setLockedUntil(Date.now() + wait); setNow(Date.now()); setMsg(`Too many tries. Wait ${wait / 1000} seconds.`); }
+        else setMsg("That's not it. Try again.");
+      }
     } else if (step === 'set1') { setFirst(code); setBuf(''); setErr(false); setStep('set2'); setMsg('Enter the same PIN again to confirm.'); }
     else if (code === first) { updateRoot(r => { r.pin = code; }); unlock(); toast('PIN is set 🔒'); closePin(true); }
     else { setStep('set1'); setFirst(''); setBuf(''); setErr(true); setMsg("Those didn't match. Choose a PIN again."); }
@@ -38,7 +48,7 @@ export function PinPad() {
   function press(k: string) {
     if (k === 'x') { closePin(false); return; }
     if (k === 'b') { setBuf(b => b.slice(0, -1)); return; }
-    if (buf.length >= 4) return;
+    if (buf.length >= 4 || (step === 'check' && lockLeft > 0)) return;
     const next = buf + k; setBuf(next); setErr(false);
     if (next.length === 4) done(next);
   }
@@ -57,7 +67,7 @@ export function PinPad() {
       <View style={{ flex: 1, backgroundColor: 'rgba(15,10,40,.6)', justifyContent: 'center', padding: 22 }}>
         <View style={{ backgroundColor: c.card, borderRadius: 22, padding: 20, gap: 12, alignItems: 'center' }}>
           <H>{step === 'check' ? 'Grown-ups only 🔒' : 'Choose a 4-digit PIN'}</H>
-          <P style={{ textAlign: 'center', color: err ? c.bad : c.soft }}>{msg}</P>
+          <P style={{ textAlign: 'center', color: err ? c.bad : c.soft }}>{step === 'check' && lockLeft > 0 ? `Too many tries. Wait ${lockLeft} seconds.` : msg}</P>
           <View style={{ flexDirection: 'row', gap: 14, marginVertical: 4 }} accessibilityLabel={`${buf.length} of 4 digits entered`}>
             {[0, 1, 2, 3].map(i => <View key={i} style={{ width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: err ? c.bad : c.brand, backgroundColor: i < buf.length ? c.brand : 'transparent' }} />)}
           </View>

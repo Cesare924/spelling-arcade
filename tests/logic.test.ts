@@ -152,4 +152,19 @@ test('every grade-list word has a built-in sentence that uses it', async () => {
     assert.ok(s.toLowerCase().includes(w.toLowerCase()), `${b} ${w}: sentence does not use the word`);
   }
 });
+
+test('a tampered backup cannot set impossible values or change prototypes', () => {
+  const evil = JSON.parse(`{"profiles":[{"id":"a","name":"x","avatar":"🦄"}],"active":"a","P":{"a":{
+    "lists":[{"id":"l","name":"L","words":["cat","<script>","a-very-very-very-long-word-that-is-too-long",5]}],
+    "stats":{"__proto__":{"polluted":1},"cat":{"c":"9e99","b":99}},
+    "set":{"grade":"zz","cost":-50,"tries":0,"mix":99999,"maxMin":-1},
+    "tokens":-7,"best":{"derby":3,"__proto__":{"x":1},"nope":9}}},
+    "sent":{"__proto__":{"polluted":2}}}`);
+  const r = normalizeRoot(evil), k = kidOf(r);
+  assert.deepEqual(k.lists[0].words, ['cat']);
+  assert.equal(k.set.grade, '23'); assert.equal(k.set.cost, 1); assert.equal(k.set.tries, 1); assert.equal(k.set.mix, 30); assert.equal(k.set.maxMin, 0);
+  assert.equal(k.tokens, 0); assert.equal(k.stats.cat.b, 5); assert.equal(k.stats.cat.c, 1e6);
+  assert.deepEqual(k.best, { derby: 3 });
+  assert.equal(({} as any).polluted, undefined); assert.equal((k.stats as any).polluted, undefined); assert.equal((r.sent as any).polluted, undefined);
+});
 console.log(`\n${passed} tests passed`);
