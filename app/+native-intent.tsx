@@ -1,5 +1,5 @@
 // Links into the app from outside (spellingstars://...) always open the home screen.
-// Nothing in Spelling Stars needs to be opened from a link, and this keeps links from
+// Nothing in Spelling Arcade needs to be opened from a link, and this keeps links from
 // jumping straight to grown-up screens or games.
 export function redirectSystemPath({ path }: { path: string; initial: boolean }) {
   try {

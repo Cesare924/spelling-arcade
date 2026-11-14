@@ -7,12 +7,12 @@ import { today } from './logic/state.ts';
 
 /** Writes the backup to a file and opens the phone's share sheet (save to Files/Drive, email, etc.). */
 export async function shareBackupFile(text: string): Promise<boolean> {
-  const file = new File(Paths.cache, `spelling-stars-backup-${today()}.json`);
+  const file = new File(Paths.cache, `spelling-arcade-backup-${today()}.json`);
   if (file.exists) file.delete();
   file.create();
   file.write(text);
   if (!(await Sharing.isAvailableAsync())) return false;
-  await Sharing.shareAsync(file.uri, { mimeType: 'application/json', dialogTitle: 'Save Spelling Stars backup', UTI: 'public.json' });
+  await Sharing.shareAsync(file.uri, { mimeType: 'application/json', dialogTitle: 'Save Spelling Arcade backup', UTI: 'public.json' });
   return true;
 }
 export async function copyBackup(text: string) { await Clipboard.setStringAsync(text); }

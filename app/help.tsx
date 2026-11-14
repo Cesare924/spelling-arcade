@@ -14,7 +14,7 @@ import { SHOW_SUPPORT_LINK, SUPPORT_URL, PRIVACY_URL } from '../src/config.ts';
 
 const FAQ: [string, [string, string][]][] = [
   ['🚀 Getting started', [
-    ['What is Spelling Stars?', 'A spelling practice app for kids in grades K to 6. Kids hear a word, spell it, and earn tokens they spend on games.'],
+    ['What is Spelling Arcade?', 'A spelling practice app for kids in grades K to 6. Kids hear a word, spell it, and earn tokens they spend on games.'],
     ['How do I set it up?', 'Tap "Run setup again" at the top of this page. It walks you through adding a kid, choosing a grade, adding a first word list, setting a PIN and testing the voice.'],
     ['How do I add another kid?', 'Settings › Kids › Add a kid. Each kid has their own words, tokens, progress and settings. Kids switch by tapping their picture on the home screen.']]],
   ['📝 Word lists & scanning', [
@@ -47,7 +47,7 @@ const FAQ: [string, [string, string][]][] = [
     ['How do I back up?', 'Settings › Grown-up tools › Save backup file, then save it to Google Drive, Files or email. Copy backup puts it on the clipboard instead.'],
     ['How do I restore?', "Use Restore from file or Paste a backup. You'll see what's inside before anything changes, and you can undo a restore. Backups from the web version work too."]]],
   ...(SHOW_SUPPORT_LINK ? [['☕ Supporting the app', [
-    ['How can I support Spelling Stars?', "Spelling Stars is free with no ads. If it's helping your family, you can buy the developer a coffee with the button at the bottom of this page or in Settings › About & support. It's completely optional, and the app is the same either way."]]]] as [string, [string, string][]][] : []),
+    ['How can I support Spelling Arcade?', "Spelling Arcade is free with no ads. If it's helping your family, you can buy the developer a coffee with the button at the bottom of this page or in Settings › About & support. It's completely optional, and the app is the same either way."]]]] as [string, [string, string][]][] : []),
 ];
 const SOUND_TIPS = 'Turn the volume up and turn off silent mode. Make sure "Spoken words" is on in Settings › Comfort. Check the phone has an English (US) voice: Android Settings › Text-to-speech, or iPhone Settings › Accessibility › Spoken Content › Voices.';
 
@@ -132,8 +132,8 @@ function HelpInner() {
       </Card>
       {SHOW_SUPPORT_LINK && (
         <Card style={{ backgroundColor: '#fffbeb', borderColor: '#fde68a' }}>
-          <H>☕ Support Spelling Stars</H>
-          <P>Spelling Stars is free, with no ads. If it's helping your family, you can buy me a coffee to help cover app-store fees and keep new games coming. Thank you!</P>
+          <H>☕ Support Spelling Arcade</H>
+          <P>Spelling Arcade is free, with no ads. If it's helping your family, you can buy me a coffee to help cover app-store fees and keep new games coming. Thank you!</P>
           <Pressable onPress={() => setGateUrl(SUPPORT_URL)} accessibilityRole="button" accessibilityLabel="Buy me a coffee. Opens a website after a grown-up check."
             style={({ pressed }) => ({ backgroundColor: '#ffdd00', borderRadius: 14, paddingVertical: 14 * f, alignItems: 'center', opacity: pressed ? .85 : 1, borderWidth: 2, borderColor: '#e5b800' })}>
             <Text style={{ color: '#1e1b4b', fontSize: 18 * f, fontWeight: '900' }}>☕ Buy me a coffee</Text>

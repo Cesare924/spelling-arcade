@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
+import { Alert, Image, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useApp } from '../src/store/AppContext.tsx';
 import { GrownUpOnly } from '../src/components/GrownUpOnly.tsx';
@@ -45,7 +45,7 @@ function SettingsScreenInner() {
   }
   function offer(text: string) {
     const b = readBackup(text);
-    if (!b) { toast("That isn't a Spelling Stars backup"); return; }
+    if (!b) { toast("That isn't a Spelling Arcade backup"); return; }
     setPending(b); setPasteBox(false);
   }
   async function fromFile() {
@@ -192,8 +192,11 @@ function SettingsScreenInner() {
       </Card>
 
       <Card>
-        <H>⭐ About & support</H>
-        <P>Spelling Stars is free, with no ads and no tracking. Everything stays on this device.</P>
+        <Row style={{ alignItems: 'center', gap: 12 }}>
+          <Image source={require('../assets/icon/logo.png')} accessibilityLabel="Spelling Arcade" style={{ width: 56, height: 56, borderRadius: 13 }} />
+          <H style={{ flex: 1 }}>About & support</H>
+        </Row>
+        <P>Spelling Arcade is free, with no ads and no tracking. Everything stays on this device.</P>
         {SHOW_SUPPORT_LINK && <>
           <P>If it's helping your family, you can buy me a coffee to help cover app-store fees and keep new games coming. Thank you!</P>
           <Pressable onPress={() => setGateUrl(SUPPORT_URL)} accessibilityRole="button" accessibilityLabel="Buy me a coffee. Opens a website after a grown-up check."

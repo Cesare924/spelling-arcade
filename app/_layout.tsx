@@ -16,7 +16,7 @@ function Nav() {
         headerStyle: { backgroundColor: c.bg }, headerTintColor: c.brandDark,
         headerTitleStyle: { fontWeight: '900' }, contentStyle: { backgroundColor: c.bg },
       }}>
-        <Stack.Screen name="index" options={{ title: 'Spelling Stars' }} />
+        <Stack.Screen name="index" options={{ title: 'Spelling Arcade' }} />
         <Stack.Screen name="practice/index" options={{ title: 'Practice' }} />
         <Stack.Screen name="practice/session" options={{ title: 'Spell it!' }} />
         <Stack.Screen name="words" options={{ title: 'My Words' }} />

@@ -1,5 +1,5 @@
 @echo off
-rem Spelling Stars - full native Android build.
+rem Spelling Arcade - full native Android build.
 rem Creates the "android" folder (openable in Android Studio) and installs
 rem the app on the running emulator. First run takes 10-20 minutes.
 rem Close the "android" project in Android Studio before running this.

@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Spelling Stars",
+    "name": "Spelling Arcade",
     "slug": "spelling-stars",
     "scheme": "spellingstars",
     "version": "0.1.0",
@@ -32,8 +32,8 @@
       [
         "expo-image-picker",
         {
-          "cameraPermission": "Spelling Stars uses the camera to scan your spelling list. The photo is read on this phone and is not uploaded.",
-          "photosPermission": "Spelling Stars can read a spelling list from a photo you choose. The photo is read on this phone and is not uploaded.",
+          "cameraPermission": "Spelling Arcade uses the camera to scan your spelling list. The photo is read on this phone and is not uploaded.",
+          "photosPermission": "Spelling Arcade can read a spelling list from a photo you choose. The photo is read on this phone and is not uploaded.",
           "microphonePermission": false
         }
       ],

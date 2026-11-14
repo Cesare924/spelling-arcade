@@ -1,4 +1,4 @@
-// App data model. The JSON shape matches the Spelling Stars web prototype,
+// App data model. The JSON shape matches the original web prototype,
 // so a backup saved from the prototype restores into this app unchanged.
 import type { Band } from '../data/gradeLists.ts';
 

@@ -58,7 +58,7 @@ export default function Home() {
       <P small style={{ textAlign: 'center' }}>⭐ {plural(kid.stars, 'star')} earned · {plural(kid.spelled, 'word')} spelled</P>
       {SHOW_SUPPORT_LINK && (
         <P small style={{ textAlign: 'center', marginTop: 8, opacity: .8 }}>
-          For grown-ups: Spelling Stars is free with no ads. If you enjoy it, there's a way to support it in Settings › About & support.
+          For grown-ups: Spelling Arcade is free with no ads. If you enjoy it, there's a way to support it in Settings › About & support.
         </P>
       )}
       <KidPicker visible={picker} onClose={() => setPicker(false)} />

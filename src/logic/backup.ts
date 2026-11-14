@@ -4,7 +4,7 @@ import { normalizeRoot, allWords, plural, type Root } from './state.ts';
 export function backupText(r: Root): string {
   return JSON.stringify({ app: 'spelling-stars', version: 2, savedAt: new Date().toISOString(), data: r });
 }
-/** Reads a backup (or bare saved data). Returns null if it isn't Spelling Stars data. */
+/** Reads a backup (or bare saved data). Returns null if it isn't Spelling Arcade data. */
 export function readBackup(text: string): { r: Root; savedAt: string | null } | null {
   let o: any;
   try { o = JSON.parse(String(text || '').trim()); } catch { return null; }

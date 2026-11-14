@@ -82,7 +82,7 @@
     },
     {
       "label": "Start app",
-      "detail": "Starts the app server. Open Spelling Stars on the phone or emulator. Press r in the terminal to reload, j for the debugger.",
+      "detail": "Starts the app server. Open Spelling Arcade on the phone or emulator. Press r in the terminal to reload, j for the debugger.",
       "type": "shell",
       "command": "npx expo start --dev-client",
       "isBackground": true,

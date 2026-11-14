@@ -278,7 +278,7 @@ function createDerby(){
     const party=g.fw>0;
     for(const p of g.crowd){const bob=Math.abs(Math.sin(g.t*(party?14:3)+p.ph))*(party?6:1.5);c.fillStyle=p.c;c.beginPath();c.arc(p.x,p.y-bob,4.2,0,7);c.fill();}
     c.fillStyle='#14532d';c.fillRect(0,104,W,18);c.fillStyle='#facc15';c.fillRect(0,104,W,3);
-    c.fillStyle='#fff';c.font='700 11px Fredoka, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('★  SPELLING STARS PARK  ★',180,114);
+    c.fillStyle='#fff';c.font='700 11px Fredoka, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('★  SPELLING ARCADE PARK  ★',180,114);
     for(let i=0;i<10;i++){c.fillStyle=i%2?'#4ade80':'#22c55e';c.fillRect(0,122+i*42,W,42);}
     c.fillStyle='#d4a373';c.beginPath();c.moveTo(180,232);c.lineTo(338,372);c.lineTo(180,520);c.lineTo(22,372);c.closePath();c.fill();
     c.fillStyle='#4ade80';c.beginPath();c.moveTo(180,272);c.lineTo(292,372);c.lineTo(180,472);c.lineTo(68,372);c.closePath();c.fill();
@@ -877,7 +877,7 @@ function createSoccer(){
     c.fillStyle='#1e3a8a';c.fillRect(0,0,W,110);
     const party=(g.party||0)>0;
     for(const p of g.crowd){const bob=Math.abs(Math.sin(g.t*(party?14:3)+p.ph))*(party?6:1.5);c.fillStyle=p.c;c.beginPath();c.arc(p.x,p.y-bob,4.2,0,7);c.fill();}
-    c.fillStyle='#e2e8f0';c.fillRect(0,104,W,10);c.fillStyle='#ef4444';c.font='700 9px Fredoka, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('★ SPELLING STARS CUP ★',180,109);
+    c.fillStyle='#e2e8f0';c.fillRect(0,104,W,10);c.fillStyle='#ef4444';c.font='700 9px Fredoka, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('★ SPELLING ARCADE CUP ★',180,109);
     for(let i=0;i<11;i++){c.fillStyle=i%2?'#4ade80':'#22c55e';c.fillRect(0,114+i*40,W,40);}
     c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=3;c.strokeRect(30,GB,300,120);c.beginPath();c.moveTo(0,GB);c.lineTo(W,GB);c.stroke();
     c.fillStyle='#fff';c.beginPath();c.arc(180,BALL0.y,4,0,7);c.fill();
@@ -1441,7 +1441,7 @@ function createFieldGoal(){
     const sky=c.createLinearGradient(0,0,0,120);sky.addColorStop(0,'#1e3a8a');sky.addColorStop(1,'#3b82f6');c.fillStyle=sky;c.fillRect(0,0,W,120);
     const party=g.flash>0;
     for(const p of g.crowd){const bob=Math.abs(Math.sin(g.t*(party?14:3)+p.ph))*(party?6:1.4);c.fillStyle=p.c;c.beginPath();c.arc(p.x,p.y-bob,4,0,7);c.fill();}
-    c.fillStyle='#e2e8f0';c.fillRect(0,100,W,12);c.fillStyle='#1e3a8a';c.font='700 9px Fredoka, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('🏈 SPELLING STARS BOWL 🏈',180,106);
+    c.fillStyle='#e2e8f0';c.fillRect(0,100,W,12);c.fillStyle='#1e3a8a';c.font='700 9px Fredoka, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('🏈 SPELLING ARCADE BOWL 🏈',180,106);
     // field in perspective
     const top=112;
     for(let i=0;i<12;i++){const y0=top+Math.pow(i/12,1.6)*(H-top),y1=top+Math.pow((i+1)/12,1.6)*(H-top);c.fillStyle=i%2?'#16a34a':'#22c55e';c.fillRect(0,y0,W,y1-y0+1);}
@@ -1535,7 +1535,7 @@ function createHockey(){
   };
   g.draw=c=>{
     const ice=c.createLinearGradient(0,0,0,H);ice.addColorStop(0,'#e0f2fe');ice.addColorStop(1,'#f8fafc');c.fillStyle=ice;c.fillRect(0,0,W,H);
-    c.fillStyle='#1e3a8a';c.fillRect(0,0,W,58);c.fillStyle='#fff';c.font='700 13px Fredoka, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('🏒 SPELLING STARS ARENA 🏒',180,30);
+    c.fillStyle='#1e3a8a';c.fillRect(0,0,W,58);c.fillStyle='#fff';c.font='700 13px Fredoka, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText('🏒 SPELLING ARCADE ARENA 🏒',180,30);
     c.strokeStyle='#ef4444';c.lineWidth=4;c.beginPath();c.moveTo(0,GY+4);c.lineTo(W,GY+4);c.stroke();
     c.strokeStyle='#3b82f6';c.lineWidth=8;c.beginPath();c.moveTo(0,330);c.lineTo(W,330);c.stroke();
     c.fillStyle='rgba(96,165,250,.35)';c.beginPath();c.arc(GX,GY+4,58,0,Math.PI);c.fill();

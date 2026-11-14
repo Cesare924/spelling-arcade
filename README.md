@@ -1,6 +1,6 @@
-# Spelling Stars (Expo app)
+# Spelling Arcade (Expo app)
 
-The phone-app version of Spelling Stars for Android and iOS, built with Expo and React Native.
+The phone-app version of Spelling Arcade for Android and iOS, built with Expo and React Native.
 
 ## What's in the app
 Everything from the web version:

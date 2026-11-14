@@ -1,6 +1,6 @@
 // First-time setup: name and picture, grade, first word list, PIN, voice check.
 import { useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useApp } from '../src/store/AppContext.tsx';
 import { GrownUpOnly } from '../src/components/GrownUpOnly.tsx';
@@ -58,8 +58,8 @@ function SetupInner() {
       </Row>
       <Card>
         {step === 0 && <>
-          <Text style={{ fontSize: 48, textAlign: 'center' }}>⭐</Text>
-          <H style={{ textAlign: 'center' }}>Welcome to Spelling Stars!</H>
+          <Image source={require('../assets/icon/logo.png')} accessibilityLabel="Spelling Arcade" style={{ width: 96, height: 96, borderRadius: 22, alignSelf: 'center' }} />
+          <H style={{ textAlign: 'center' }}>Welcome to Spelling Arcade!</H>
           <P style={{ textAlign: 'center' }}>Let's get set up. It takes about a minute.</P>
           <Text style={{ fontSize: 16 * f, fontWeight: '700', color: c.ink }}>Who's the speller?</Text>
           <Field value={name} onChangeText={setName} maxLength={20} placeholder="Their first name" accessibilityLabel="Speller's first name" />
@@ -103,7 +103,7 @@ function SetupInner() {
           <Chips label="Voice" value={kid.set.voiceGender} onChange={v => { updateKid(k => { k.set.voiceGender = v; k.set.voiceName = ''; }); setTimeout(() => say('cat', { ...kid.set, voiceGender: v, voiceName: '' }), 50); }}
             options={[{ v: 'any', label: 'Any' }, { v: 'female', label: '👩 Female' }, { v: 'male', label: '👨 Male' }]} />
           <P small>No sound? Check the volume and silent mode. The Help page has a Sound check.</P>
-          {SHOW_SUPPORT_LINK && <P small style={{ marginTop: 6 }}>⭐ Spelling Stars is free with no ads. If you enjoy it, there's a way to support it in Settings › About & support.</P>}
+          {SHOW_SUPPORT_LINK && <P small style={{ marginTop: 6 }}>🕹️ Spelling Arcade is free with no ads. If you enjoy it, there's a way to support it in Settings › About & support.</P>}
         </>}
         <Row style={{ marginTop: 6 }}>
           {step > 0 && <Btn kind="ghost" label="← Back" onPress={() => setStep(step - 1)} />}
