@@ -4,6 +4,7 @@ import { router, Stack } from 'expo-router';
 import { useApp } from '../src/store/AppContext.tsx';
 import { Screen, Card, Btn, H, P, Row, IconBtn, useLook } from '../src/components/ui.tsx';
 import { KidPicker } from '../src/components/overlays.tsx';
+import { SHOW_SUPPORT_LINK } from '../src/config.ts';
 import { allWords, trickyWords, dueWords, streak, upcomingTest, whenText, profileOf, plural } from '../src/logic/state.ts';
 
 export default function Home() {
@@ -55,6 +56,11 @@ export default function Home() {
       </Row>
       <Btn kind="ghost" label="📊 Progress report" onPress={() => grown('/report')} />
       <P small style={{ textAlign: 'center' }}>⭐ {plural(kid.stars, 'star')} earned · {plural(kid.spelled, 'word')} spelled</P>
+      {SHOW_SUPPORT_LINK && (
+        <P small style={{ textAlign: 'center', marginTop: 8, opacity: .8 }}>
+          For grown-ups: Spelling Stars is free with no ads. If you enjoy it, there's a way to support it in Settings › About & support.
+        </P>
+      )}
       <KidPicker visible={picker} onClose={() => setPicker(false)} />
     </Screen>
   );

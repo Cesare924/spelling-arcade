@@ -5,8 +5,9 @@ import { Linking, Modal, Text, View } from 'react-native';
 import { useApp } from '../store/AppContext.tsx';
 import { Btn, H, P, Field, Row, useLook } from './ui.tsx';
 
+// Easy for a grown-up, hard for a young child: a times-table fact from 6 to 9.
 function question() {
-  const a = 11 + Math.floor(Math.random() * 9), b = 6 + Math.floor(Math.random() * 4);
+  const a = 6 + Math.floor(Math.random() * 4), b = 6 + Math.floor(Math.random() * 4);
   return { text: `What is ${a} × ${b}?`, answer: a * b };
 }
 
