@@ -3,8 +3,8 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { normalizeRoot, kidOf, type Root, type Kid } from '../logic/state.ts';
 
-const KEY = 'spellingstars.v1';
-const PREV_KEY = 'spellingstars.prev';
+const KEY = 'spellingarcade.v1';
+const PREV_KEY = 'spellingarcade.prev';
 const UNLOCK_MS = 10 * 60 * 1000;
 
 export type PinMode = 'check' | 'set';

@@ -3,7 +3,7 @@
 // the C++ build folder to <project>/.cx so the paths stay short. Applied on every prebuild.
 const { withAppBuildGradle } = require('expo/config-plugins');
 
-const MARK = '// spelling-stars: short C++ build folder';
+const MARK = '// spelling-arcade: short C++ build folder';
 module.exports = function withShortNativeBuild(config) {
   return withAppBuildGradle(config, cfg => {
     if (!cfg.modResults.contents.includes(MARK)) {

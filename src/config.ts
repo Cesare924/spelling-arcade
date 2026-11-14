@@ -7,5 +7,5 @@ export const APP_VERSION = Constants.expoConfig?.version || '';
 export const SHOW_SUPPORT_LINK = extra.showSupportLink !== false;
 export const SUPPORT_URL = typeof extra.supportUrl === 'string' ? extra.supportUrl : 'https://buymeacoffee.com/mateo2';
 /** Website with the privacy policy. Empty until it's hosted publicly. */
-export const WEBSITE_URL = typeof extra.websiteUrl === 'string' && extra.websiteUrl ? extra.websiteUrl : 'https://cesare924.github.io/spelling-stars/';
+export const WEBSITE_URL = typeof extra.websiteUrl === 'string' && extra.websiteUrl ? extra.websiteUrl : 'https://cesare924.github.io/spelling-arcade/';
 export const PRIVACY_URL = WEBSITE_URL.replace(/\/?$/, '/') + '#privacy';

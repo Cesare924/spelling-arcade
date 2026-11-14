@@ -2,14 +2,14 @@
 import { normalizeRoot, allWords, plural, type Root } from './state.ts';
 
 export function backupText(r: Root): string {
-  return JSON.stringify({ app: 'spelling-stars', version: 2, savedAt: new Date().toISOString(), data: r });
+  return JSON.stringify({ app: 'spelling-arcade', version: 2, savedAt: new Date().toISOString(), data: r });
 }
 /** Reads a backup (or bare saved data). Returns null if it isn't Spelling Arcade data. */
 export function readBackup(text: string): { r: Root; savedAt: string | null } | null {
   let o: any;
   try { o = JSON.parse(String(text || '').trim()); } catch { return null; }
   if (!o || typeof o !== 'object') return null;
-  const d = o.app === 'spelling-stars' && o.data ? o.data : o;
+  const d = o.app === 'spelling-arcade' && o.data ? o.data : o;
   if (!d || typeof d !== 'object' || !(Array.isArray(d.profiles) || Array.isArray(d.lists) || Array.isArray(d.words))) return null;
   return { r: normalizeRoot(d), savedAt: typeof o.savedAt === 'string' ? o.savedAt : null };
 }

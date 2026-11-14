@@ -1,17 +1,17 @@
 {
   "expo": {
     "name": "Spelling Arcade",
-    "slug": "spelling-stars",
-    "scheme": "spellingstars",
+    "slug": "spelling-arcade",
+    "scheme": "spellingarcade",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "ios": {
-      "bundleIdentifier": "com.cesare924.spellingstars",
+      "bundleIdentifier": "com.cesare924.spellingarcade",
       "supportsTablet": true
     },
     "android": {
-      "package": "com.cesare924.spellingstars",
+      "package": "com.cesare924.spellingarcade",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon/adaptive-foreground.png",
         "backgroundImage": "./assets/icon/adaptive-background.png",

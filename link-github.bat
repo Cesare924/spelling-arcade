@@ -1,5 +1,5 @@
 @echo off
-rem Connects this folder to github.com/Cesare924/spelling-stars without changing your files.
+rem Connects this folder to github.com/Cesare924/spelling-arcade without changing your files.
 cd /d "%~dp0"
 where git >nul 2>nul
 if errorlevel 1 (
@@ -8,13 +8,15 @@ if errorlevel 1 (
   exit /b 1
 )
 if exist .git (
-  echo This folder is already linked:
+  rem Already linked: make sure it points at the renamed project.
+  git remote set-url origin https://github.com/Cesare924/spelling-arcade.git
+  echo This folder is linked to:
   git remote -v
   pause
   exit /b 0
 )
 git init -b main || goto failed
-git remote add origin https://github.com/Cesare924/spelling-stars.git || goto failed
+git remote add origin https://github.com/Cesare924/spelling-arcade.git || goto failed
 echo Downloading the project history from GitHub...
 git fetch origin main || goto failed
 rem Point at GitHub's latest version but keep every file in this folder exactly as it is.
@@ -35,7 +37,7 @@ git config user.email "%GMAIL%"
 
 :done
 echo.
-echo Linked to github.com/Cesare924/spelling-stars
+echo Linked to github.com/Cesare924/spelling-arcade
 echo Files that differ from GitHub (normal: package-lock.json and similar):
 git status --short
 echo.

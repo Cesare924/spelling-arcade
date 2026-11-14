@@ -7,6 +7,6 @@ module.exports = ({ config }) => ({
     showSupportLink: process.env.SHOW_SUPPORT_LINK !== 'false',
     supportUrl: 'https://buymeacoffee.com/mateo2',
     // Public website / privacy policy address, once it's hosted (for example on GitHub Pages).
-    websiteUrl: process.env.WEBSITE_URL || 'https://cesare924.github.io/spelling-stars/',
+    websiteUrl: process.env.WEBSITE_URL || 'https://cesare924.github.io/spelling-arcade/',
   },
 });

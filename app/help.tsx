@@ -42,7 +42,7 @@ const FAQ: [string, [string, string][]][] = [
     ['What does the PIN protect?', "My Words, Settings, the progress report and this Help page. It stays unlocked for 10 minutes after you enter it. It keeps young kids out but isn't strong security."],
     ['I forgot the PIN.', 'On the PIN pad, tap "Forgot PIN?" and answer the multiplication question to remove it.'],
     ['Where is our data kept?', 'Only on this phone. Scanning happens on the phone too. No accounts, no ads and no tracking. Save a backup so nothing is lost if the phone is replaced.'],
-    ['Where is the privacy policy?', 'Tap "Privacy policy" at the bottom of this page, or in Settings › About & support. It opens cesare924.github.io/spelling-stars in your browser.']]],
+    ['Where is the privacy policy?', 'Tap "Privacy policy" at the bottom of this page, or in Settings › About & support. It opens cesare924.github.io/spelling-arcade in your browser.']]],
   ['💾 Backup', [
     ['How do I back up?', 'Settings › Grown-up tools › Save backup file, then save it to Google Drive, Files or email. Copy backup puts it on the clipboard instead.'],
     ['How do I restore?', "Use Restore from file or Paste a backup. You'll see what's inside before anything changes, and you can undo a restore. Backups from the web version work too."]]],
