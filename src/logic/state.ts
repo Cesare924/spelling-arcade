@@ -4,9 +4,10 @@ import type { Band } from '../data/gradeLists.ts';
 
 export type GameId =
   | 'derby' | 'race' | 'soccer' | 'hoops' | 'unicorn' | 'balloon' | 'catcher' | 'moonrocket'
-  | 'scramble' | 'snake' | 'wheel' | 'detective' | 'memory' | 'icecream' | 'space' | 'bonk' | 'fieldgoal';
-export const GAME_IDS: GameId[] = ['derby', 'race', 'soccer', 'hoops', 'fieldgoal', 'unicorn', 'balloon', 'catcher', 'moonrocket',
-  'scramble', 'snake', 'wheel', 'detective', 'memory', 'icecream', 'space', 'bonk'];
+  | 'scramble' | 'snake' | 'wheel' | 'detective' | 'memory' | 'icecream' | 'space' | 'bonk' | 'fieldgoal'
+  | 'hockey' | 'bowling' | 'minigolf' | 'tennis' | 'fishing' | 'beehive' | 'train' | 'wordbowl' | 'dino' | 'puppy';
+export const GAME_IDS: GameId[] = ['derby', 'race', 'soccer', 'hoops', 'fieldgoal', 'hockey', 'bowling', 'minigolf', 'tennis', 'unicorn', 'dino', 'puppy', 'balloon', 'catcher', 'moonrocket',
+  'scramble', 'snake', 'wheel', 'detective', 'fishing', 'beehive', 'train', 'wordbowl', 'memory', 'icecream', 'space', 'bonk'];
 
 export interface Settings {
   voiceGender: 'any' | 'female' | 'male';

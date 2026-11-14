@@ -2,6 +2,16 @@
 import type { GameId } from '../logic/state.ts';
 
 export const GAMES: Record<GameId, { em: string; title: string; desc: string }> = {
+  hockey: { em: '🏒', title: 'Hockey Shootout', desc: 'Time your slap shot past the sliding goalie!' },
+  bowling: { em: '🎳', title: 'Bowling Buddies', desc: 'Aim, add spin and knock down all 10 pins.' },
+  minigolf: { em: '⛳', title: 'Mini Golf', desc: 'Pull back and putt around walls to beat par.' },
+  tennis: { em: '🎾', title: 'Tennis Rally', desc: 'Tap at the perfect moment to keep the rally going.' },
+  fishing: { em: '🎣', title: 'Letter Fishing', desc: 'Reel in letter fish in order to spell the word.' },
+  beehive: { em: '🐝', title: 'Spelling Bee Hive', desc: 'Tap honeycomb letters in order and the bee follows.' },
+  train: { em: '🚂', title: 'Letter Train', desc: 'Hook up letter cars before the train leaves!' },
+  wordbowl: { em: '🎯', title: 'Word Bowling', desc: 'Knock down letter pins in spelling order.' },
+  dino: { em: '🦖', title: 'Dino Dash', desc: 'Jump the cactuses and grab the stars!' },
+  puppy: { em: '🐶', title: 'Puppy Fetch', desc: 'Toss the ball just right so the puppy can catch it.' },
   fieldgoal: { em: '🏈', title: 'Field Goal Frenzy', desc: 'Aim, beat the wind and kick it through the posts!' },
   derby: { em: '⚾', title: 'Home Run Derby', desc: 'Time your swing and smash home runs!' },
   unicorn: { em: '🦄', title: 'Unicorn Rainbow Dash', desc: 'Jump, dodge storms and catch stars!' },
