@@ -8,6 +8,8 @@ import { Screen, Card, H, P, Btn, Row, Field, useLook } from '../src/components/
 import { plural, profileOf } from '../src/logic/state.ts';
 import { backupAge } from '../src/logic/backup.ts';
 import { usVoices, say, type VoiceInfo } from '../src/speech.ts';
+import { GrownUpGate } from '../src/components/GrownUpGate.tsx';
+import { SHOW_SUPPORT_LINK, SUPPORT_URL } from '../src/config.ts';
 
 const FAQ: [string, [string, string][]][] = [
   ['🚀 Getting started', [
@@ -42,12 +44,15 @@ const FAQ: [string, [string, string][]][] = [
   ['💾 Backup', [
     ['How do I back up?', 'Settings › Grown-up tools › Save backup file, then save it to Google Drive, Files or email. Copy backup puts it on the clipboard instead.'],
     ['How do I restore?', "Use Restore from file or Paste a backup. You'll see what's inside before anything changes, and you can undo a restore. Backups from the web version work too."]]],
+  ...(SHOW_SUPPORT_LINK ? [['☕ Supporting the app', [
+    ['How can I support Spelling Stars?', "Spelling Stars is free with no ads. If it's helping your family, you can buy the developer a coffee with the button at the bottom of this page or in Settings › About & support. It's completely optional, and the app is the same either way."]]]] as [string, [string, string][]][] : []),
 ];
 const SOUND_TIPS = 'Turn the volume up and turn off silent mode. Make sure "Spoken words" is on in Settings › Comfort. Check the phone has an English (US) voice: Android Settings › Text-to-speech, or iPhone Settings › Accessibility › Spoken Content › Voices.';
 
 export default function Help() {
   const { root, kid, updateKid } = useApp();
   const { c, f } = useLook();
+  const [gateUrl, setGateUrl] = useState<string | null>(null);
   const [q, setQ] = useState('');
   const [open, setOpen] = useState<string | null>(null);
   const [out, setOut] = useState<{ text: string; actions?: { label: string; on: () => void }[] } | null>(null);
@@ -123,6 +128,18 @@ export default function Help() {
           </View>
         ))}
       </Card>
+      {SHOW_SUPPORT_LINK && (
+        <Card style={{ backgroundColor: '#fffbeb', borderColor: '#fde68a' }}>
+          <H>☕ Support Spelling Stars</H>
+          <P>Spelling Stars is free, with no ads. If it's helping your family, you can buy me a coffee to help cover app-store fees and keep new games coming. Thank you!</P>
+          <Pressable onPress={() => setGateUrl(SUPPORT_URL)} accessibilityRole="button" accessibilityLabel="Buy me a coffee. Opens a website after a grown-up check."
+            style={({ pressed }) => ({ backgroundColor: '#ffdd00', borderRadius: 14, paddingVertical: 14 * f, alignItems: 'center', opacity: pressed ? .85 : 1, borderWidth: 2, borderColor: '#e5b800' })}>
+            <Text style={{ color: '#1e1b4b', fontSize: 18 * f, fontWeight: '900' }}>☕ Buy me a coffee</Text>
+          </Pressable>
+          <P small>Opens buymeacoffee.com in your browser after a quick grown-up check.</P>
+        </Card>
+      )}
+      <GrownUpGate url={gateUrl} onClose={() => setGateUrl(null)} />
     </Screen>
   );
 }
