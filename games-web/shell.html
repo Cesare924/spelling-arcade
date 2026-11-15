@@ -186,7 +186,7 @@ window.__tickets=function(r){
   const big=el('div','big');const num=el('span',null,'+0');big.appendChild(num);big.appendChild(el('small',null,total===1?'ticket':'tickets'));
   box.appendChild(strip);box.appendChild(big);
   (Array.isArray(r.rows)?r.rows:[]).slice(0,4).forEach(x=>{if(!Array.isArray(x))return;const row=el('div','row');row.appendChild(el('span',null,String(x[0]).slice(0,40)));row.appendChild(el('b',null,'+'+(Math.floor(+x[1])||0)));box.appendChild(row);});
-  if(r.jackpot)box.appendChild(el('div','jp','🎰 JACKPOT! +'+(Math.floor(+r.jackpot)||0)));
+  if(r.jackpot)box.appendChild(el('div','jp','🌟 LUCKY BONUS! +'+(Math.floor(+r.jackpot)||0)));
   if(r.note)box.appendChild(el('div','note',String(r.note).slice(0,90)));
   let n=0;const iv=setInterval(()=>{n++;num.textContent='+'+Math.min(n,total);sfx('tick');if(n>=total){clearInterval(iv);sfx(r.jackpot?'win':'coin');}},Math.max(40,600/Math.max(1,total)));
   if(!total)clearInterval(iv);

@@ -13,7 +13,7 @@ export const LEVELS: Record<GameId, [number, number, number]> = {
   space: [8, 16, 26], bonk: [40, 100, 150],
 };
 export const PAY = { played: 1, bronze: 3, silver: 5, gold: 8, newBest: 4, jackpot: 25 };
-/** Chance of a jackpot on a silver or gold game. */
+/** Chance of a lucky bonus on a silver or gold game (shown to kids as "Lucky bonus"; tickets never cost money). */
 export const JACKPOT_CHANCE = 0.08;
 /** The most one game can ever pay (gold + new best + jackpot). */
 export const MAX_PER_GAME = PAY.gold + PAY.newBest + PAY.jackpot;
