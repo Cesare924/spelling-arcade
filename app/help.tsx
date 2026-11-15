@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { isSupported as scanSupported } from 'expo-text-extractor';
+import { isSupported as scanSupported } from '../src/textScan.ts';
 import { useApp } from '../src/store/AppContext.tsx';
 import { GrownUpOnly } from '../src/components/GrownUpOnly.tsx';
 import { Screen, Card, H, P, Btn, Row, Field, useLook } from '../src/components/ui.tsx';

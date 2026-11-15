@@ -186,6 +186,11 @@
     },
     // ---------- iOS (cloud builds through Expo, since iPhone apps can't be built on Windows) ----------
     {
+      "label": "iOS: Start for Expo Go (free, no Apple account)",
+      "detail": "Quick testing on an iPhone with the free Expo Go app: scan the QR code with the iPhone camera (same Wi-Fi). Scanning lists is off in Expo Go",
+      "type": "shell", "command": "npx expo start --go", "isBackground": true, "problemMatcher": []
+    },
+    {
       "label": "iOS 1: Sign in to Expo",
       "detail": "One time: sign in to your free Expo account (create one at expo.dev)",
       "type": "shell", "command": "npx eas-cli login", "problemMatcher": []
