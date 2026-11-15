@@ -45,14 +45,16 @@ export default function Game() {
     if (m.t === 'spend') { paid.current++; updateKid(k => { k.tokens = Math.max(0, k.tokens - k.set.cost); dayRec(k).games++; }); }
     else if (m.t === 'ms') updateKid(k => { dayRec(k).ms += n(m.ms, 60000); });
     else if (m.t === 'end') {
+      // Only a game that was paid for with tokens can end: anything else is ignored.
+      if (paid.current <= 0) return;
+      paid.current--;
       const s = n(m.score, 1e6), prevBest = kid.best[id];
-      const pay = paid.current > 0 ? payout(id, s, prevBest, Math.random()) : null;
-      if (pay) paid.current--;
+      const pay = payout(id, s, prevBest, Math.random());
       updateKid(k => {
         const prev = k.best[id]; if (prev == null || s > prev) k.best[id] = s;
-        if (pay) awardTickets(k, pay.total);
+        awardTickets(k, pay.total);
       });
-      if (pay) showTickets(pay, kid.tickets + pay.total);
+      showTickets(pay, kid.tickets + pay.total);
     }
     else if (m.t === 'speak') sayFromGame(String(m.text || '').slice(0, 300), !!m.raw, kid.set);
     else if (m.t === 'exit') { stopSpeech(); if (router.canGoBack()) router.back(); else router.replace('/arcade'); }
