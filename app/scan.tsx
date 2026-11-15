@@ -24,8 +24,11 @@ function ScanInner() {
 
   async function take(camera: boolean) {
     try {
-      const perm = camera ? await ImagePicker.requestCameraPermissionsAsync() : await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (!perm.granted) { toast(camera ? 'Camera permission is needed to scan.' : 'Photo permission is needed.'); return; }
+      // The camera needs permission. Choosing a photo uses the system photo picker, which needs none.
+      if (camera) {
+        const perm = await ImagePicker.requestCameraPermissionsAsync();
+        if (!perm.granted) { toast('Camera permission is needed to scan.'); return; }
+      }
       const res = camera
         ? await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], quality: 1 })
         : await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 1 });
