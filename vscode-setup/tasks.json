@@ -183,6 +183,37 @@
           "PATH": "${env:LOCALAPPDATA}\\Android\\Sdk\\platform-tools;${env:LOCALAPPDATA}\\Android\\Sdk\\emulator;${env:PATH}"
         }
       }
+    },
+    // ---------- iOS (cloud builds through Expo, since iPhone apps can't be built on Windows) ----------
+    {
+      "label": "iOS 1: Sign in to Expo",
+      "detail": "One time: sign in to your free Expo account (create one at expo.dev)",
+      "type": "shell", "command": "npx eas-cli login", "problemMatcher": []
+    },
+    {
+      "label": "iOS 2: Register a test iPhone or iPad",
+      "detail": "Shows a link/QR code. Open it on each iPhone or iPad you want to test on",
+      "type": "shell", "command": "npx eas-cli device:create", "problemMatcher": []
+    },
+    {
+      "label": "iOS 3: Build test app for registered devices",
+      "detail": "Cloud build (about 15 to 25 min). Gives an install link/QR. Runs on its own, no PC needed",
+      "type": "shell", "command": "npx eas-cli build --platform ios --profile preview", "problemMatcher": []
+    },
+    {
+      "label": "iOS: Build developer app (live reload from this PC)",
+      "detail": "For live editing: the iPhone loads code from Metro on this PC over the same Wi-Fi",
+      "type": "shell", "command": "npx eas-cli build --platform ios --profile development", "problemMatcher": []
+    },
+    {
+      "label": "iOS: Start Metro for the iPhone developer app",
+      "detail": "Then scan the QR code with the iPhone camera",
+      "type": "shell", "command": "npx expo start --dev-client", "isBackground": true, "problemMatcher": []
+    },
+    {
+      "label": "iOS: TestFlight build and upload",
+      "detail": "For many testers: builds and uploads to TestFlight (needs the app created in App Store Connect)",
+      "type": "shell", "command": "npx eas-cli build --platform ios --profile production --auto-submit", "problemMatcher": []
     }
   ],
   "inputs": [

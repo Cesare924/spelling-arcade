@@ -8,7 +8,11 @@
     "userInterfaceStyle": "light",
     "ios": {
       "bundleIdentifier": "com.cesare924.spellingarcade",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.cesare924.spellingarcade",

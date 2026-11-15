@@ -1,6 +1,7 @@
 // Reading words aloud with the phone's built-in voices (expo-speech). Works offline.
 import * as Speech from 'expo-speech';
 import type { Settings } from './logic/state.ts';
+import { audioMode } from './sfx.ts';
 
 export interface VoiceInfo { id: string; name: string; gender: 'female' | 'male' | 'unknown' }
 
@@ -41,6 +42,7 @@ export async function say(text: string, set: Settings, opts: { slower?: boolean;
   if (!set.voice) { opts.onDone?.(); return; }
   Speech.stop();
   const voice = await pickVoice(set);
+  audioMode();
   Speech.speak(text, {
     language: 'en-US', voice, rate: RATES[set.rate] * (opts.slower ? 0.7 : 1),
     onDone: opts.onDone, onStopped: opts.onDone, onError: () => opts.onDone?.(),
