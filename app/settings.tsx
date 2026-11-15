@@ -72,7 +72,7 @@ function SettingsScreenInner() {
             {p.id === root.active
               ? <Btn small kind="good" label="Playing" onPress={() => {}} />
               : <Btn small kind="secondary" label="Switch" onPress={() => { updateRoot(r => { r.active = p.id; }); toast('Now playing: ' + p.name); }} />}
-            {root.profiles.length > 1 && <Btn small kind="ghost" label="✕" onPress={() => confirm(`Remove ${p.name}?`, 'Their words, tokens and progress will be deleted.', () => { updateRoot(r => removeKid(r, p.id)); toast('Removed'); }, 'Remove')} />}
+            {root.profiles.length > 1 && <Btn small kind="ghost" label="✕" onPress={() => confirm(`Remove ${p.name}?`, 'Their words, tokens, tickets, prizes, family prize requests and progress will be deleted.', () => { updateRoot(r => removeKid(r, p.id)); toast('Removed'); }, 'Remove')} />}
           </View>
         ))}
         {root.profiles.length < 8 && <Btn kind="secondary" label="＋ Add a kid" onPress={() => { updateRoot(r => { addKid(r); }); toast('Added. Type their name above ✏️'); }} />}

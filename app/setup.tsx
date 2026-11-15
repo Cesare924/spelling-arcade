@@ -91,7 +91,7 @@ function SetupInner() {
         {step === 3 && <>
           <Text style={{ fontSize: 48, textAlign: 'center' }}>🔒</Text>
           <H>Grown-up PIN</H>
-          <P>A 4-digit PIN keeps kids out of word lists, settings and tokens.</P>
+          <P>A 4-digit PIN keeps kids out of word lists, settings, tokens and family prizes.</P>
           {root.pin ? <Text style={{ color: c.good, fontWeight: '800', fontSize: 17 * f }}>✓ PIN is set</Text> : <Btn label="Set a PIN" onPress={() => choosePin()} />}
           <P small>You can skip this and set it later in Settings.</P>
         </>}
@@ -103,6 +103,11 @@ function SetupInner() {
           <Chips label="Voice" value={kid.set.voiceGender} onChange={v => { updateKid(k => { k.set.voiceGender = v; k.set.voiceName = ''; }); setTimeout(() => say('cat', { ...kid.set, voiceGender: v, voiceName: '' }), 50); }}
             options={[{ v: 'any', label: 'Any' }, { v: 'female', label: '👩 Female' }, { v: 'male', label: '👨 Male' }]} />
           <P small>No sound? Check the volume and silent mode. The Help page has a Sound check.</P>
+          <Card style={{ gap: 4, marginTop: 4 }}>
+            <Text style={{ fontWeight: '800', fontSize: 15 * f, color: c.ink }}>How it works</Text>
+            <P small>✏️ Spell words → 🪙 earn tokens → 🎮 play games → 🎟️ win tickets → 🎁 trade them at the Prize Counter.</P>
+            <P small>Want real-world rewards too? Add family prizes in Settings › Tickets & prizes.</P>
+          </Card>
           {SHOW_SUPPORT_LINK && <P small style={{ marginTop: 6 }}>🕹️ Spelling Arcade is free with no ads. If you enjoy it, there's a way to support it in Settings › About & support.</P>}
         </>}
         <Row style={{ marginTop: 6 }}>

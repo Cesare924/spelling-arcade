@@ -8,15 +8,16 @@ import { GrownUpOnly } from '../src/components/GrownUpOnly.tsx';
 import { Screen, Card, H, P, Btn, Row, Field, useLook } from '../src/components/ui.tsx';
 import { plural, profileOf } from '../src/logic/state.ts';
 import { backupAge } from '../src/logic/backup.ts';
+import { famFor, setAside, waitingReqs } from '../src/logic/prizes.ts';
 import { usVoices, say, type VoiceInfo } from '../src/speech.ts';
 import { GrownUpGate } from '../src/components/GrownUpGate.tsx';
 import { SHOW_SUPPORT_LINK, SUPPORT_URL, PRIVACY_URL } from '../src/config.ts';
 
 const FAQ: [string, [string, string][]][] = [
   ['🚀 Getting started', [
-    ['What is Spelling Arcade?', 'A spelling practice app for kids in grades K to 6. Kids hear a word, spell it, and earn tokens they spend on games.'],
+    ['What is Spelling Arcade?', 'A spelling practice app for kids in grades K to 6. Kids hear a word and spell it to earn tokens, spend tokens on arcade games, win tickets in the games, and trade tickets for prizes at the Prize Counter.'],
     ['How do I set it up?', 'Tap "Run setup again" at the top of this page. It walks you through adding a kid, choosing a grade, adding a first word list, setting a PIN and testing the voice.'],
-    ['How do I add another kid?', 'Settings › Kids › Add a kid. Each kid has their own words, tokens, progress and settings. Kids switch by tapping their picture on the home screen.']]],
+    ['How do I add another kid?', 'Settings › Kids › Add a kid. Each kid has their own words, tokens, tickets, prizes, progress and settings. Kids switch by tapping their picture on the home screen.']]],
   ['📝 Word lists & scanning', [
     ["How do I add this week's school words?", 'My Words › New list, then type the words (spaces or commas between them) or tap Scan list to take a photo of the paper.'],
     ['How does scanning work?', 'Take a clear, bright photo of the list. The phone reads the words itself (nothing is uploaded), then you can tap any it got wrong to skip them before adding.'],
@@ -43,15 +44,18 @@ const FAQ: [string, [string, string][]][] = [
     ['Can tickets be bought?', 'No. Tickets are only earned by playing, and games are only played with tokens earned by spelling. Nothing in the app costs money.'],
     ['What can kids get at the Prize Counter?', 'Stickers for a sticker book, new avatars, game looks (like a rainbow snake or candy letter tiles), and top-shelf prizes that sit on the home screen. All just for fun: none of them make games easier.'],
     ['What are family prizes?', 'Real-world rewards you create in Settings › Tickets & prizes › Family prizes, like "Pick dinner" or "30 minutes at the park." Set the ticket price, how often it can be picked, and which kids can pick it.'],
-    ['How do family prize requests work?', "When a kid picks a family prize, its tickets are set aside and the request waits for you in Family prizes. \"OK it\" completes it; \"Not now\" gives the tickets back."],
-    ['Can I give or take away tickets?', 'Yes. Settings › Tickets & prizes has bonus buttons. Settings › Reset › Tickets & prizes clears a kid\'s tickets and prizes.']]],
+    ['How do family prize requests work?', "When a kid picks a family prize, its tickets are set aside and the home screen shows it's waiting. Tap \"Grown-up: answer now\" there (or go to Settings › Tickets & prizes › Family prizes) and enter the PIN. \"OK it\" completes it; \"Not now\" gives the tickets back."],
+    ['Can I hide family prizes?', 'Yes. Turn off "Show family prizes" in Family prizes. The Family shelf disappears from the Prize Counter, but your prizes are kept for later.'],
+    ['Can kids earn too many tickets?', 'A game pays at most 37 tickets, and only games paid for with tokens pay out. Games per day and Play time per day (in Settings › Tokens & games) limit tickets too.'],
+    ['Can I give or take away tickets?', 'Yes. Settings › Tickets & prizes has bonus buttons. Settings › Grown-up tools › Reset › Tickets & prizes clears a kid\'s tickets and prizes.']]],
   ['🔒 PIN & privacy', [
-    ['What does the PIN protect?', "My Words, Settings, the progress report and this Help page. It stays unlocked for 10 minutes after you enter it. It keeps young kids out but isn't strong security."],
+    ['What does the PIN protect?', "My Words, Settings, Family prizes (including OKing requests), the progress report and this Help page. It stays unlocked for 10 minutes after you enter it. It keeps young kids out but isn't strong security."],
     ['I forgot the PIN.', 'On the PIN pad, tap "Forgot PIN?" and answer the multiplication question to remove it.'],
     ['Where is our data kept?', 'Only on this phone. Scanning happens on the phone too. No accounts, no ads and no tracking. Save a backup so nothing is lost if the phone is replaced.'],
     ['Where is the privacy policy?', 'Tap "Privacy policy" at the bottom of this page, or in Settings › About & support. It opens cesare924.github.io/spelling-arcade in your browser.']]],
   ['💾 Backup', [
     ['How do I back up?', 'Settings › Grown-up tools › Save backup file, then save it to Google Drive, Files or email. Copy backup puts it on the clipboard instead.'],
+    ['What does a backup include?', 'Everything for every kid: word lists, progress, tokens, tickets, prizes and family prize requests, plus your family prizes and settings.'],
     ['How do I restore?', "Use Restore from file or Paste a backup. You'll see what's inside before anything changes, and you can undo a restore. Backups from the web version work too."]]],
   ...(SHOW_SUPPORT_LINK ? [['☕ Supporting the app', [
     ['How can I support Spelling Arcade?', "Spelling Arcade is free with no ads. If it's helping your family, you can buy the developer a coffee with the button at the bottom of this page or in Settings › About & support. It's completely optional, and the app is the same either way."]]]] as [string, [string, string][]][] : []),
@@ -70,6 +74,22 @@ function HelpInner() {
   const name = profileOf(root).name;
 
   function check(k: string) {
+    if (k === 'prizes') {
+      // Tickets, the Family shelf, and requests waiting for a grown-up.
+      const wait = waitingReqs(root), fams = famFor(root, root.active), held = setAside(kid);
+      const lines = [
+        `🎟️ ${name} has ${plural(kid.tickets, 'ticket')}${held ? ` (plus ${held} set aside for a request)` : ''} and ${plural(kid.owned.length, 'prize')}.`,
+        !root.fam.on ? '👨‍👩‍👧 Family prizes are turned off, so the Family shelf is hidden.'
+          : fams.length ? `👨‍👩‍👧 ${name} can pick from ${plural(fams.length, 'family prize')}.`
+          : `👨‍👩‍👧 No family prizes for ${name} yet. Add some in Family prizes.`,
+        wait.length ? `⏳ ${plural(wait.length, 'request')} waiting for you to OK.` : '✅ No requests waiting.',
+      ];
+      setOut({ text: lines.join('\n'), actions: [
+        { label: wait.length ? 'Answer requests' : 'Family prizes', on: () => router.push('/family-prizes') },
+        { label: 'Prize Counter', on: () => router.push('/prizes') },
+      ] });
+      return;
+    }
     if (k === 'sound') {
       if (!kid.set.voice) { setOut({ text: `🔇 Spoken words are turned off for ${name}.`, actions: [{ label: 'Turn them on', on: () => { updateKid(x => { x.set.voice = true; }); setOut({ text: '✅ Spoken words are on. Run the sound check again.' }); } }] }); return; }
       say('cat', kid.set);
@@ -107,7 +127,7 @@ function HelpInner() {
         <H>🛠️ Fix a problem</H>
         <P small>Tap a check. Each one tests the app on this phone.</P>
         <Row>
-          {[['sound', '🔊 Sound check'], ['voice', '🗣️ Voice check'], ['backup', '💾 Backup check'], ['scan', '📷 Scanning check'], ['save', '☁️ Saving check']].map(([k, l]) =>
+          {[['sound', '🔊 Sound check'], ['voice', '🗣️ Voice check'], ['prizes', '🎟️ Prize check'], ['backup', '💾 Backup check'], ['scan', '📷 Scanning check'], ['save', '☁️ Saving check']].map(([k, l]) =>
             <Btn key={k} small kind="secondary" label={l} onPress={() => check(k)} />)}
         </Row>
         {out && (
