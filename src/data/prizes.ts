@@ -69,7 +69,7 @@ export const PRIZES: Prize[] = [
   { id: 'lk_bullet', kind: 'look', em: '🚅', name: 'Bullet train', price: 120, slot: 'train', where: 'Letter Train' },
   { id: 'lk_dragon', kind: 'look', em: '🐉', name: 'Dragon runner', price: 120, slot: 'unicorn', where: 'Unicorn Rainbow Dash' },
   { id: 'lk_ufo', kind: 'look', em: '🛸', name: 'Flying saucer', price: 120, slot: 'space', where: 'Space Star Catcher' },
-  { id: 'lk_moonufo', kind: 'look', em: '🛸', name: 'Moon saucer', price: 120, slot: 'moonrocket', where: 'Moon Rocket' },
+  { id: 'lk_moonufo', kind: 'look', em: '🛰️', name: 'Moon satellite', price: 120, slot: 'moonrocket', where: 'Moon Rocket' },
   { id: 'lk_ocean', kind: 'look', em: '🌊', name: 'Ocean letter tiles', price: 150, slot: 'tiles', where: 'Spelling practice' },
   { id: 'lk_mint', kind: 'look', em: '🍃', name: 'Mint letter tiles', price: 150, slot: 'tiles', where: 'Spelling practice' },
   { id: 'lk_sunset', kind: 'look', em: '🌅', name: 'Sunset home', price: 150, slot: 'home', where: 'Home screen' },

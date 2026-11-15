@@ -1130,7 +1130,7 @@ function createMoonRocket(){
     if(builtinSent(g.word))roundBtn(c,36,150,20,'💬');
     c.fillStyle='#64748b';rr(c,140,290,80,14,4);c.fill();
     if(g.state==='launch'){c.fillStyle='#f97316';c.beginPath();c.moveTo(170,270+g.ry);c.lineTo(190,270+g.ry);c.lineTo(180,300+g.ry+Math.random()*14);c.closePath();c.fill();}
-    c.save();c.translate(180,245+g.ry);if(!LOOKS.moonrocket)c.rotate(-Math.PI/4);emo(c,LOOKS.moonrocket?'🛸':'🚀',0,0,56);c.restore();
+    c.save();c.translate(180,245+g.ry);if(!LOOKS.moonrocket)c.rotate(-Math.PI/4);emo(c,LOOKS.moonrocket?'🛰️':'🚀',0,0,56);c.restore();
     for(let i=0;i<FUEL;i++){const on=i<g.fuel;c.fillStyle=on?(g.fuel<=2?'#f97316':'#22c55e'):'rgba(255,255,255,.15)';rr(c,250+i*(80/FUEL),286,80/FUEL-3,18,3);c.fill();}
     c.fillStyle='#e0e7ff';c.font='600 11px Fredoka, sans-serif';c.textAlign='center';c.fillText('⛽ FUEL',290,276);
     if(g.hint){c.fillStyle='rgba(255,255,255,.92)';rr(c,14,182,W-28,58,12);c.fill();c.fillStyle='#1e1b4b';c.font='600 14px Fredoka, sans-serif';c.textAlign='center';c.textBaseline='middle';

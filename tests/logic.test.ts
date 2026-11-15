@@ -216,6 +216,7 @@ test('prize ids are unique and prices sensible', () => {
   assert.equal(new Set(PRIZES.map(p => p.id)).size, PRIZES.length);
   for (const p of PRIZES) assert.ok(p.price >= 10 && p.price <= 1500, p.id);
   assert.ok(PRIZES.length >= 70, 'a big Prize Counter');
+  for (const kind of ['sticker', 'avatar', 'look', 'trophy']) { const ems = PRIZES.filter(x => x.kind === kind).map(x => x.em); assert.equal(new Set(ems).size, ems.length, 'no duplicate pictures on the ' + kind + ' shelf'); }
   for (const p of PRIZES.filter(x => x.kind === 'look')) assert.ok(p.slot && p.where, p.id);
   for (const p of PRIZES.filter(x => x.kind === 'avatar')) assert.ok(!AVATARS.includes(p.em), 'prize avatars are new: ' + p.em);
 });
