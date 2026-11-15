@@ -6,7 +6,9 @@ import { GRADE_LISTS } from '../src/data/gradeLists.ts';
 import { payout, LEVELS, MAX_PER_GAME } from '../src/logic/tickets.ts';
 import { awardTickets, buyPrize, setLook, looksBySlot, famFor, famBlock, requestFam, answerReq, waitingReqs, setAside, goalOf, ticketsPerDay, adjustTickets } from '../src/logic/prizes.ts';
 import { PRIZES } from '../src/data/prizes.ts';
-import { GAME_IDS } from '../src/logic/state.ts';
+import { GAME_IDS, AVATARS } from '../src/logic/state.ts';
+import { lookIn } from '../src/logic/prizes.ts';
+import { HOME_THEMES, TILE_THEMES, PRIZE_BY_ID } from '../src/data/prizes.ts';
 
 let passed = 0;
 const test = (name: string, fn: () => void) => { fn(); passed++; console.log('ok -', name); };
@@ -203,10 +205,19 @@ test('buying prizes, looks and goals', () => {
   setLook(k, 'lk_hoops', false); assert.deepEqual(looksBySlot(k), {});
   setLook(k, 'lk_snake', true); assert.deepEqual(looksBySlot(k), {}, 'cannot turn on a look you do not own');
   assert.match(buyPrize(k, 'nope'), /gone/);
+  k.tickets = 1000; buyPrize(k, 'lk_tiles'); buyPrize(k, 'lk_ocean');
+  assert.equal(lookIn(k, 'tiles'), 'lk_ocean', 'a new look in the same slot replaces the old one');
+  setLook(k, 'lk_tiles', true); assert.equal(lookIn(k, 'tiles'), 'lk_tiles');
+  assert.equal(k.looksOn.filter(id => PRIZE_BY_ID[id].slot === 'tiles').length, 1);
+  for (const id of Object.keys(HOME_THEMES)) assert.equal(PRIZE_BY_ID[id]?.slot, 'home', id);
+  for (const id of Object.keys(TILE_THEMES)) assert.equal(PRIZE_BY_ID[id]?.slot, 'tiles', id);
 });
 test('prize ids are unique and prices sensible', () => {
   assert.equal(new Set(PRIZES.map(p => p.id)).size, PRIZES.length);
-  for (const p of PRIZES) assert.ok(p.price >= 10 && p.price <= 1000, p.id);
+  for (const p of PRIZES) assert.ok(p.price >= 10 && p.price <= 1500, p.id);
+  assert.ok(PRIZES.length >= 70, 'a big Prize Counter');
+  for (const p of PRIZES.filter(x => x.kind === 'look')) assert.ok(p.slot && p.where, p.id);
+  for (const p of PRIZES.filter(x => x.kind === 'avatar')) assert.ok(!AVATARS.includes(p.em), 'prize avatars are new: ' + p.em);
 });
 test('family prize request, limits, answer and refund', () => {
   const r = normalizeRoot(null), kidId = r.active, k = kidOf(r);

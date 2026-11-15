@@ -6,8 +6,8 @@ import { Screen, Card, Btn, H, P, Row, IconBtn, useLook } from '../src/component
 import { KidPicker } from '../src/components/overlays.tsx';
 import { SHOW_SUPPORT_LINK } from '../src/config.ts';
 import { allWords, trickyWords, dueWords, streak, upcomingTest, whenText, profileOf, plural } from '../src/logic/state.ts';
-import { PRIZES } from '../src/data/prizes.ts';
-import { goalOf, looksBySlot } from '../src/logic/prizes.ts';
+import { PRIZES, HOME_THEMES } from '../src/data/prizes.ts';
+import { goalOf, lookIn } from '../src/logic/prizes.ts';
 import { GoalBar, TICKET } from '../src/components/tickets.tsx';
 
 export default function Home() {
@@ -21,16 +21,16 @@ export default function Home() {
   if (!ready || needsSetup) return <View style={{ flex: 1, justifyContent: 'center' }}><ActivityIndicator size="large" color={c.brand} /></View>;
 
   const me = profileOf(root), due = dueWords(kid), test = upcomingTest(kid), days = streak(kid), tricky = trickyWords(kid).length;
-  const goal = goalOf(root, kid, root.active), night = !!looksBySlot(kid).home;
+  const goal = goalOf(root, kid, root.active), theme = HOME_THEMES[lookIn(kid, 'home')];
   const trophies = PRIZES.filter(p => p.kind === 'trophy' && kid.owned.includes(p.id));
   const waiting = kid.famReq.filter(q => q.st === 'wait');
-  const ink = night ? '#ffffff' : undefined, soft = night ? '#c7d2fe' : undefined;
+  const ink = theme?.ink, soft = theme?.soft;
   const grown = (path: '/words' | '/settings' | '/report' | '/help') => requirePin(() => router.push(path));
   return (
     <Screen>
       <Stack.Screen options={{ headerRight: () => <IconBtn icon="❓" label="Help" onPress={() => grown('/help')} /> }} />
-      <Card style={{ alignItems: 'center', ...(night ? { backgroundColor: '#1e1b4b', borderColor: '#312e81' } : {}) }}>
-        {night && <Text accessibilityElementsHidden importantForAccessibility="no" style={{ position: 'absolute', top: 8, left: 14, right: 14, color: '#fde68a', fontSize: 14, letterSpacing: 18, opacity: .8 }}>✦ · ✧ · ✦ · ✧ · ✦</Text>}
+      <Card style={{ alignItems: 'center', ...(theme ? { backgroundColor: theme.bg, borderColor: theme.line } : {}) }}>
+        {theme && <Text accessibilityElementsHidden importantForAccessibility="no" style={{ position: 'absolute', top: 8, left: 14, right: 14, color: theme.decoColor, fontSize: 14, letterSpacing: 18, opacity: .8 }}>{theme.deco}</Text>}
         <Pressable onPress={() => setPicker(true)} accessibilityRole="button" accessibilityLabel={`${me.name}. Tap to switch kids`} style={{ alignItems: 'center' }}>
           <Text style={{ fontSize: 56 }}>{me.avatar}</Text>
           <H style={{ color: ink }}>Hi, {me.name}! 👋</H>

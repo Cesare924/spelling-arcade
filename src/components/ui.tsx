@@ -3,6 +3,8 @@
 import React from 'react';
 import { Modal, Pressable, ScrollView, Switch, Text, TextInput, View, type ViewStyle, type TextStyle, type TextInputProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { TILE_THEMES } from '../data/prizes.ts';
+import { lookIn } from '../logic/prizes.ts';
 import { useApp } from '../store/AppContext.tsx';
 
 const BASE = {
@@ -79,9 +81,9 @@ export function Field(props: TextInputProps) {
 export function Tiles({ tiles, used, onTap }: { tiles: string[]; used: boolean[]; onTap: (i: number) => void }) {
   const { c, f } = useLook();
   const { kid } = useApp();
-  // Prize Counter look: candy letter tiles
-  const candy = kid.looksOn.includes('lk_tiles') && kid.owned.includes('lk_tiles');
-  const tileBg = candy ? '#fce7f3' : c.tile, tileLine = candy ? '#ec4899' : c.sun;
+  // Prize Counter looks: colored letter tiles
+  const tt = TILE_THEMES[lookIn(kid, 'tiles')];
+  const tileBg = tt ? tt.bg : c.tile, tileLine = tt ? tt.line : c.sun;
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
       {tiles.map((t, i) => (

@@ -29,7 +29,7 @@ export default function MyPrizes() {
 
       <Card>
         <Row style={{ justifyContent: 'space-between' }}><H>🏆 Trophy shelf</H><P small>Shows on your home screen</P></Row>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingTop: 6, borderBottomWidth: 10, borderBottomColor: '#d6a46c', borderRadius: 4 }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', rowGap: 8, paddingTop: 6, borderBottomWidth: 10, borderBottomColor: '#d6a46c', borderRadius: 4 }}>
           {trophies.map(p => (
             <View key={p.id} style={{ alignItems: 'center', width: '19%' }} accessible accessibilityLabel={own(p.id) ? p.name : `${p.name}, not won yet, ${p.price} tickets`}>
               {own(p.id) ? <Text style={{ fontSize: 40 }}>{p.em}</Text>

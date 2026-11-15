@@ -40,6 +40,7 @@ const S={set:INIT.set,tokens:INIT.tokens,best:INIT.best};
 const DAY={games:INIT.day.games,ms:INIT.day.ms};
 /* prizes from the Prize Counter that change how games look, e.g. {hoops:true} */
 const LOOKS=INIT.looks||{};
+const SOCCERBALL=LOOKS.soccer?'🌍':'⚽';
 function post(m){try{window.ReactNativeWebView.postMessage(JSON.stringify(m));}catch(e){}}
 let msBuf=0;
 function flushMs(){if(msBuf>0){post({t:'ms',ms:Math.round(msBuf)});msBuf=0;}}

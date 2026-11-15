@@ -40,6 +40,10 @@ export function setLook(k: Kid, id: string, on: boolean) {
   k.looksOn = k.looksOn.filter(x => x !== id && PRIZE_BY_ID[x]?.slot !== p.slot);
   if (on) k.looksOn.push(id);
 }
+/** The id of the look that is on in a slot, or ''. */
+export function lookIn(k: Kid, slot: LookSlot): string {
+  return k.looksOn.find(id => PRIZE_BY_ID[id]?.slot === slot && k.owned.includes(id)) || '';
+}
 /** Which looks are on, by slot, e.g. { hoops: true }. */
 export function looksBySlot(k: Kid): Partial<Record<LookSlot, boolean>> {
   const out: Partial<Record<LookSlot, boolean>> = {};
