@@ -46,6 +46,19 @@
     "experiments": {
       "typedRoutes": false
     },
-    "icon": "./assets/icon/icon.png"
+    "icon": "./assets/icon/icon.png",
+    "extra": {
+      "showSupportLink": true,
+      "supportUrl": "https://buymeacoffee.com/mateo2",
+      "websiteUrl": "https://cesare924.github.io/spelling-arcade/",
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "f06f8a3f-a147-446b-aefc-290a9387cc68"
+      }
+    }
   }
 }
