@@ -6,17 +6,22 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+      }
     },
     "preview": {
       "distribution": "internal",
       "env": {
-        "SHOW_SUPPORT_LINK": "true"
+        "SHOW_SUPPORT_LINK": "true",
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
       }
     },
     "production": {
       "env": {
-        "SHOW_SUPPORT_LINK": "false"
+        "SHOW_SUPPORT_LINK": "false",
+        "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
       }
     }
   },
