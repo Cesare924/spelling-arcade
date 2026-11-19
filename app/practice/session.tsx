@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
 import { router, useLocalSearchParams, Stack } from 'expo-router';
 import { useApp } from '../../src/store/AppContext.tsx';
-import { Screen, Card, Btn, H, P, Row, Tiles, IconBtn, useLook } from '../../src/components/ui.tsx';
+import { Screen, Card, Btn, H, P, Row, Tiles, IconBtn, useLook, Coin } from '../../src/components/ui.tsx';
 import { KidHelp } from '../../src/components/overlays.tsx';
 import { norm, plural, streak, type Kid } from '../../src/logic/state.ts';
 import {
@@ -124,7 +124,7 @@ export default function Session() {
   helpSteps.push(['🪙', 'Every word you get right earns a token for games!']);
 
   return (
-    <Screen>
+    <Screen keyboardEnd={!tileMode}>
       <Stack.Screen options={{ title: `Word ${idx + 1} of ${words.length}`, headerRight: () => <IconBtn icon="❓" label="How to practice" onPress={() => setHelp(true)} /> }} />
       <View style={{ height: 8, borderRadius: 4, backgroundColor: c.line, overflow: 'hidden' }}>
         <View style={{ width: `${(idx / words.length) * 100}%`, height: 8, backgroundColor: c.brand }} />
@@ -182,7 +182,7 @@ export default function Session() {
         )}
         {result?.correct && (
           <View style={{ borderRadius: 14, padding: 12, alignItems: 'center', backgroundColor: c.goodBg }}>
-            <Text style={{ fontSize: 20 * f, color: c.ink, fontWeight: '800', textAlign: 'center' }}>🎉 {cheer} +{plural(result.earned, 'token')} 🪙</Text>
+            <Text style={{ fontSize: 20 * f, color: c.ink, fontWeight: '800', textAlign: 'center' }}>🎉 {cheer} +{plural(result.earned, 'token')} <Coin size={20 * f} /></Text>
           </View>
         )}
         {result?.reveal && (

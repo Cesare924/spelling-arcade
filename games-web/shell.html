@@ -28,6 +28,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#1e1b4b;font-family:sy
 .strip{display:flex;justify-content:center;gap:3px;margin:-4px 0 6px}
 .strip i{display:block;width:26px;height:16px;background:#fb7185;border-radius:2px;border-left:2px dashed #ffe4e6;border-right:2px dashed #ffe4e6;animation:drop .35s ease-out both}
 @keyframes drop{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+.coin{width:1.05em;height:1.05em;vertical-align:-.18em;display:inline-block}
 </style></head>
 <body>
 <div id="top"><button id="back" aria-label="Back to Arcade">← Arcade</button><div id="score"></div></div>
@@ -147,7 +148,12 @@ function loop(t){
   raf=requestAnimationFrame(loop);
 }
 function makeGame(id){const g=GAMES[id]();g.id=id;g.started=false;g.ended=false;return g;}
-function overlay(html){const o=$('#ov');o.innerHTML=html;o.hidden=false;}
+// Token coin: our own picture (iPhone draws the coin emoji as a gray, moon-like coin).
+const COIN_URI='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+CiAgPGRlZnM+CiAgICA8cmFkaWFsR3JhZGllbnQgaWQ9ImZhY2UiIGN4PSIzOCUiIGN5PSIzMiUiIHI9IjcwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0ZGRjNCMCIvPjxzdG9wIG9mZnNldD0iLjQ1IiBzdG9wLWNvbG9yPSIjRkZENDNCIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRjU5RjAwIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJyaW0iIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjRkZDOTREIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjQzc3NzAwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8Y2lyY2xlIGN4PSIzMiIgY3k9IjM0IiByPSIyOSIgZmlsbD0iI0EzNUYwMCIvPgogIDxjaXJjbGUgY3g9IjMyIiBjeT0iMzEiIHI9IjI5IiBmaWxsPSJ1cmwoI3JpbSkiLz4KICA8Y2lyY2xlIGN4PSIzMiIgY3k9IjMxIiByPSIyMi41IiBmaWxsPSJ1cmwoI2ZhY2UpIiBzdHJva2U9IiNEOTg0MDAiIHN0cm9rZS13aWR0aD0iMi4yIi8+CiAgPHBhdGggZD0iTTMyIDE3LjVsNC4xIDguNiA5LjQgMS4yLTYuOSA2LjUgMS44IDkuM0wzMiAzOC41bC04LjQgNC42IDEuOC05LjMtNi45LTYuNSA5LjQtMS4yeiIgZmlsbD0iI0U2NzcwMCIgb3BhY2l0eT0iLjM1IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwIDEuNCkiLz4KICA8cGF0aCBkPSJNMzIgMTcuNWw0LjEgOC42IDkuNCAxLjItNi45IDYuNSAxLjggOS4zTDMyIDM4LjVsLTguNCA0LjYgMS44LTkuMy02LjktNi41IDkuNC0xLjJ6IiBmaWxsPSIjRkZGOERCIiBzdHJva2U9IiNFMDhBMDAiIHN0cm9rZS13aWR0aD0iMS42IiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+CiAgPHBhdGggZD0iTTE0IDIyYTIwIDIwIDAgMCAxIDEyLTEwIiBzdHJva2U9IiNmZmYiIHN0cm9rZS13aWR0aD0iMyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBmaWxsPSJub25lIiBvcGFjaXR5PSIuNyIvPgo8L3N2Zz4K';
+const COIN_IMG=new Image();COIN_IMG.src=COIN_URI;
+const COIN_HTML='<img class="coin" alt="tokens" src="'+COIN_URI+'">';
+function coinify(html){return String(html).split('\u{1FA99}').join(COIN_HTML);}
+function overlay(html){const o=$('#ov');o.innerHTML=coinify(html);o.hidden=false;}
 function openGame(id){
   fitCanvas();G=makeGame(id);
   const lim=limitReason();

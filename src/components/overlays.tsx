@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useApp } from '../store/AppContext.tsx';
-import { Btn, H, P, Sheet, Field, Row, useLook } from './ui.tsx';
+import { Btn, H, P, Sheet, Field, Row, useLook, Coin } from './ui.tsx';
 import { allWords, plural } from '../logic/state.ts';
 import { say, stopSpeech } from '../speech.ts';
 import { sfx } from '../sfx.ts';
@@ -122,7 +122,7 @@ export function KidPicker({ visible, onClose }: { visible: boolean; onClose: () 
             <Text style={{ fontSize: 36 }}>{p.avatar}</Text>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 18 * f, fontWeight: '800', color: c.ink }}>{p.name}</Text>
-              <Text style={{ color: c.soft, fontSize: 14 * f }}>🪙 {k.tokens} · 🎟️ {k.tickets} · {plural(allWords(k).length, 'word')}</Text>
+              <Text style={{ color: c.soft, fontSize: 14 * f }}><Coin size={14 * f} /> {k.tokens} · 🎟️ {k.tickets} · {plural(allWords(k).length, 'word')}</Text>
             </View>
           </Pressable>
         );
@@ -144,7 +144,7 @@ export function KidHelp({ visible, onClose, title, steps }: { visible: boolean; 
           <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center' }}>
             <Text style={{ color: '#fff', fontWeight: '900' }}>{i + 1}</Text>
           </View>
-          <Text style={{ fontSize: 24 }}>{em}</Text>
+          {em === '🪙' ? <Coin size={26} /> : <Text style={{ fontSize: 24 }}>{em}</Text>}
           <Text style={{ flex: 1, fontSize: 16 * f, color: c.ink }}>{t}</Text>
         </View>
       ))}

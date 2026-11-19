@@ -1,6 +1,6 @@
 /* drawing helpers */
 const EMOJI_FONT='"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
-function emo(c,ch,x,y,size,flip){c.save();c.fillStyle='#000';c.font=size+'px '+EMOJI_FONT;c.textAlign='center';c.textBaseline='middle';c.translate(x,y);if(flip)c.scale(-1,1);c.fillText(ch,0,0);c.restore();}
+function emo(c,ch,x,y,size,flip){if(ch==='\u{1FA99}'&&typeof COIN_IMG!=='undefined'&&COIN_IMG.complete&&COIN_IMG.naturalWidth){c.drawImage(COIN_IMG,x-size/2,y-size/2,size,size);return;}c.save();c.fillStyle='#000';c.font=size+'px '+EMOJI_FONT;c.textAlign='center';c.textBaseline='middle';c.translate(x,y);if(flip)c.scale(-1,1);c.fillText(ch,0,0);c.restore();}
 function rr(c,x,y,w,h,r){r=Math.max(0,Math.min(r,w/2,h/2));c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
 function burst(arr,x,y,colors,n,spd){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=spd*(.35+Math.random()*.8);arr.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.7+Math.random()*.5,c:colors[i%colors.length],r:2+Math.random()*3});}}
 function stepParts(arr,dt,grav){for(let i=arr.length-1;i>=0;i--){const p=arr[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=grav*dt;p.life-=dt;if(p.life<=0)arr.splice(i,1);}}

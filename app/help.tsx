@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { isSupported as scanSupported } from '../src/textScan.ts';
 import { useApp } from '../src/store/AppContext.tsx';
 import { GrownUpOnly } from '../src/components/GrownUpOnly.tsx';
-import { Screen, Card, H, P, Btn, Row, Field, useLook } from '../src/components/ui.tsx';
+import { Screen, Card, H, P, Btn, Row, Field, useLook, withCoin } from '../src/components/ui.tsx';
 import { plural, profileOf } from '../src/logic/state.ts';
 import { backupAge } from '../src/logic/backup.ts';
 import { famFor, setAside, waitingReqs } from '../src/logic/prizes.ts';
@@ -143,7 +143,7 @@ function HelpInner() {
         {!sections.length && <P>No matches. Try another word.</P>}
         {sections.map(([sec, qs]) => (
           <View key={sec} style={{ gap: 6 }}>
-            <Text style={{ fontWeight: '900', color: c.brandDark, fontSize: 16 * f, marginTop: 6 }}>{sec}</Text>
+            <Text style={{ fontWeight: '900', color: c.brandDark, fontSize: 16 * f, marginTop: 6 }}>{withCoin(sec, 16 * f)}</Text>
             {qs.map(([qq, a]) => {
               const on = open === qq || !!ql;
               return (

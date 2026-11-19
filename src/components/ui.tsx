@@ -1,7 +1,7 @@
 // Shared building blocks: colors, screen wrapper, buttons, cards, tiles, options, sheets.
 // "Bigger text" and "High contrast" settings are applied here for every screen.
 import React from 'react';
-import { Modal, Pressable, ScrollView, Switch, Text, TextInput, View, type ViewStyle, type TextStyle, type TextInputProps } from 'react-native';
+import { Image, Keyboard, Modal, Platform, Pressable, ScrollView, Switch, Text, TextInput, View, type ViewStyle, type TextStyle, type TextInputProps } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TILE_THEMES } from '../data/prizes.ts';
 import { lookIn } from '../logic/prizes.ts';
@@ -25,12 +25,43 @@ export function useLook() {
   return { c: kid.set.hc ? HIGH : BASE, f: kid.set.big ? 1.18 : 1, hc: kid.set.hc };
 }
 
-export function Screen({ children, scroll = true }: { children: React.ReactNode; scroll?: boolean }) {
+const COIN = require('../../assets/images/coin.png');
+/** The token coin. Our own picture, because phones draw the coin emoji differently (iPhone's is a gray, moon-like coin). */
+export function Coin({ size = 16 }: { size?: number }) {
+  return <Image source={COIN} style={{ width: size, height: size }} accessibilityLabel="tokens" />;
+}
+/** Swap every 🪙 in strings (and nested Text) for the Coin picture, sized to the text. */
+export function withCoin(node: React.ReactNode, size: number): React.ReactNode {
+  if (typeof node === 'string') {
+    if (!node.includes('🪙')) return node;
+    return node.split('🪙').flatMap((part, i) => i ? [<Coin key={'c' + i} size={Math.round(size * 1.1)} />, part] : [part]);
+  }
+  if (Array.isArray(node)) return React.Children.toArray(node).map(n => withCoin(n, size));
+  if (React.isValidElement(node) && (node.props as any)?.children !== undefined && node.type === Text) {
+    return React.cloneElement(node as React.ReactElement<any>, undefined, withCoin((node.props as any).children, size));
+  }
+  return node;
+}
+
+export function Screen({ children, scroll = true, keyboardEnd = false }: { children: React.ReactNode; scroll?: boolean; keyboardEnd?: boolean }) {
   const { c } = useLook();
+  // keyboardEnd: for screens whose text box sits near the bottom (spelling practice and tests).
+  // While the keyboard is up, keep the end of the screen (box, Check button, feedback) in view.
+  const ref = React.useRef<ScrollView>(null);
+  const kbUp = React.useRef(false);
+  React.useEffect(() => {
+    if (!keyboardEnd) return;
+    const toEnd = () => setTimeout(() => ref.current?.scrollToEnd({ animated: true }), 60);
+    const show = Keyboard.addListener('keyboardDidShow', () => { kbUp.current = true; toEnd(); });
+    const hide = Keyboard.addListener('keyboardDidHide', () => { kbUp.current = false; });
+    return () => { show.remove(); hide.remove(); };
+  }, [keyboardEnd]);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: c.bg }} edges={['bottom', 'left', 'right']}>
       {scroll
-        ? <ScrollView contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 40 }} keyboardShouldPersistTaps="handled">{children}</ScrollView>
+        ? <ScrollView ref={ref} contentContainerStyle={{ padding: 16, gap: 12, paddingBottom: 40 }} keyboardShouldPersistTaps="handled"
+            automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
+            onContentSizeChange={() => { if (keyboardEnd && kbUp.current) ref.current?.scrollToEnd({ animated: true }); }}>{children}</ScrollView>
         : <View style={{ padding: 16, gap: 12, flex: 1 }}>{children}</View>}
     </SafeAreaView>
   );
@@ -51,7 +82,7 @@ export function Btn({ label, onPress, kind = 'primary', disabled, style, big, sm
         paddingVertical: (big ? 18 : small ? 9 : 13) * f, paddingHorizontal: small ? 12 : 18,
         borderWidth: hc || kind === 'ghost' ? 2 : 0, borderColor: hc ? c.ink : c.line,
       }, style]}>
-      <Text style={{ color: fg, fontSize: size, fontWeight: '800', textAlign: 'center' }}>{label}</Text>
+      <Text style={{ color: fg, fontSize: size, fontWeight: '800', textAlign: 'center' }}>{withCoin(label, size)}</Text>
     </Pressable>
   );
 }
@@ -62,11 +93,11 @@ export function Card({ children, style }: { children: React.ReactNode; style?: V
 }
 export function H({ children, style }: { children: React.ReactNode; style?: TextStyle }) {
   const { c, f } = useLook();
-  return <Text style={[{ fontSize: 20 * f, fontWeight: '900', color: c.ink }, style]}>{children}</Text>;
+  return <Text style={[{ fontSize: 20 * f, fontWeight: '900', color: c.ink }, style]}>{withCoin(children, 20 * f)}</Text>;
 }
 export function P({ children, style, small }: { children: React.ReactNode; style?: TextStyle; small?: boolean }) {
   const { c, f } = useLook();
-  return <Text style={[{ fontSize: (small ? 13.5 : 16) * f, color: c.soft, lineHeight: (small ? 19 : 22) * f }, style]}>{children}</Text>;
+  return <Text style={[{ fontSize: (small ? 13.5 : 16) * f, color: c.soft, lineHeight: (small ? 19 : 22) * f }, style]}>{withCoin(children, (small ? 13.5 : 16) * f)}</Text>;
 }
 export function Row({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
   return <View style={[{ flexDirection: 'row', gap: 10, alignItems: 'center', flexWrap: 'wrap' }, style]}>{children}</View>;
@@ -112,7 +143,7 @@ export function Chips<T extends string | number | boolean>({ value, options, onC
           return (
             <Pressable key={String(o.v)} onPress={() => onChange(o.v)} accessibilityRole="radio" accessibilityState={{ selected: on }}
               style={{ paddingVertical: 8 * f, paddingHorizontal: 14, borderRadius: 999, backgroundColor: on ? c.brand : c.brandSoft, borderWidth: 2, borderColor: on ? c.brandDark : 'transparent' }}>
-              <Text style={{ fontSize: 15 * f, fontWeight: '700', color: on ? '#fff' : c.brandDark }}>{o.label}</Text>
+              <Text style={{ fontSize: 15 * f, fontWeight: '700', color: on ? '#fff' : c.brandDark }}>{withCoin(o.label, 15 * f)}</Text>
             </Pressable>
           );
         })}
@@ -163,7 +194,7 @@ export function Stat({ n, label }: { n: string | number; label: string }) {
   return (
     <View style={{ alignItems: 'center', minWidth: 90, flexGrow: 1, flexBasis: '28%', paddingVertical: 6 }}>
       <Text style={{ fontSize: 24 * f, fontWeight: '900', color: c.ink }}>{n}</Text>
-      <Text style={{ color: c.soft, fontSize: 13 * f, textAlign: 'center' }}>{label}</Text>
+      <Text style={{ color: c.soft, fontSize: 13 * f, textAlign: 'center' }}>{withCoin(label, 13 * f)}</Text>
     </View>
   );
 }

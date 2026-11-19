@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { useApp } from '../src/store/AppContext.tsx';
-import { Screen, Card, Btn, H, P, Row, IconBtn, useLook } from '../src/components/ui.tsx';
+import { Screen, Card, Btn, H, P, Row, IconBtn, useLook, withCoin } from '../src/components/ui.tsx';
 import { KidPicker } from '../src/components/overlays.tsx';
 import { SHOW_SUPPORT_LINK } from '../src/config.ts';
 import { allWords, trickyWords, dueWords, streak, upcomingTest, whenText, profileOf, plural } from '../src/logic/state.ts';
@@ -95,7 +95,7 @@ function Mini({ n, label, icon, ink, soft }: { n: number; label: string; icon: s
   const { c, f } = useLook();
   return (
     <View style={{ alignItems: 'center' }}>
-      <Text style={{ fontSize: 22 * f, fontWeight: '900', color: ink || c.ink }}>{icon} {n}</Text>
+      <Text style={{ fontSize: 22 * f, fontWeight: '900', color: ink || c.ink }}>{withCoin(icon, 22 * f)} {n}</Text>
       <Text style={{ color: soft || c.soft, fontSize: 12.5 * f }}>{label}</Text>
     </View>
   );
