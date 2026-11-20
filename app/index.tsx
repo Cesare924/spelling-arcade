@@ -67,19 +67,23 @@ export default function Home() {
 
       <Btn big label="✏️  Practice spelling" onPress={() => router.push('/practice')} disabled={!words.length} />
       {!words.length && <P style={{ textAlign: 'center' }}>No words yet. A grown-up can add some in My Words.</P>}
-      {due.length > 0 && <Btn kind="secondary" label={`🔁 Review time: ${plural(due.length, 'word')}`}
-        onPress={() => router.push({ pathname: '/practice/session', params: { mode: 'due' } })} />}
-      {tricky > 0 && <Btn kind="secondary" label={`🧠 Tricky words (${tricky})`}
-        onPress={() => router.push({ pathname: '/practice/session', params: { mode: 'tricky' } })} />}
+      {(due.length > 0 || tricky > 0) && (
+        <Row>
+          {due.length > 0 && <Tile icon="🔁" label={`Review: ${plural(due.length, 'word')}`}
+            onPress={() => router.push({ pathname: '/practice/session', params: { mode: 'due' } })} />}
+          {tricky > 0 && <Tile icon="🧠" label={`Tricky words (${tricky})`}
+            onPress={() => router.push({ pathname: '/practice/session', params: { mode: 'tricky' } })} />}
+        </Row>
+      )}
       <Row>
-        <Btn big kind="good" label="🎮 Arcade" onPress={() => router.push('/arcade')} style={{ flex: 1 }} />
-        <Btn big label="🎁 Prizes" onPress={() => router.push('/prizes')} style={{ flex: 1, backgroundColor: TICKET.main }} />
+        <Tile big icon="🎮" label="Arcade" bg={c.good} onPress={() => router.push('/arcade')} />
+        <Tile big icon="🎁" label="Prizes" bg={TICKET.main} onPress={() => router.push('/prizes')} />
       </Row>
       <Row>
-        <Btn kind="secondary" label="📚 My Words" onPress={() => grown('/words')} style={{ flex: 1 }} />
-        <Btn kind="secondary" label="⚙️ Settings" onPress={() => grown('/settings')} style={{ flex: 1 }} />
+        <Tile icon="📚" label="My Words" onPress={() => grown('/words')} />
+        <Tile icon="⚙️" label="Settings" onPress={() => grown('/settings')} />
+        <Tile icon="📊" label="Report" onPress={() => grown('/report')} />
       </Row>
-      <Btn kind="ghost" label="📊 Progress report" onPress={() => grown('/report')} />
       <P small style={{ textAlign: 'center' }}>⭐ {plural(kid.stars, 'star')} earned · {plural(kid.spelled, 'word')} spelled</P>
       {SHOW_SUPPORT_LINK && (
         <P small style={{ textAlign: 'center', marginTop: 8, opacity: .8 }}>
@@ -98,5 +102,23 @@ function Mini({ n, label, icon, ink, soft }: { n: number; label: string; icon: s
       <Text style={{ fontSize: 22 * f, fontWeight: '900', color: ink || c.ink }}>{withCoin(icon, 22 * f)} {n}</Text>
       <Text style={{ color: soft || c.soft, fontSize: 12.5 * f }}>{label}</Text>
     </View>
+  );
+}
+
+/** Home-screen tile: every tile in a row is the same height, icon above a short label. */
+function Tile({ icon, label, onPress, bg, big }: { icon: string; label: string; onPress: () => void; bg?: string; big?: boolean }) {
+  const { c, f, hc } = useLook();
+  const fg = bg ? '#fff' : c.brandDark;
+  return (
+    <Pressable accessibilityRole="button" accessibilityLabel={label} onPress={onPress}
+      style={({ pressed }) => ({
+        flex: 1, minHeight: (big ? 96 : 78) * f, borderRadius: 16, paddingVertical: 10, paddingHorizontal: 6,
+        alignItems: 'center', justifyContent: 'center', gap: 4,
+        backgroundColor: bg || c.brandSoft, opacity: pressed ? .8 : 1,
+        borderWidth: hc ? 2 : 0, borderColor: c.ink,
+      })}>
+      <Text style={{ fontSize: (big ? 30 : 24) * f }}>{icon}</Text>
+      <Text numberOfLines={2} style={{ color: fg, fontSize: (big ? 19 : 15) * f, fontWeight: '800', textAlign: 'center' }}>{label}</Text>
+    </Pressable>
   );
 }
