@@ -11,3 +11,4 @@ build-log.txt
 .idea/
 .vscode/.react/
 *.log
+store-images/
