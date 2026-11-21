@@ -206,6 +206,11 @@
       "type": "shell", "command": "npx eas-cli build --platform ios --profile preview", "problemMatcher": []
     },
     {
+      "label": "Android: Build test app (install link for any phone)",
+      "detail": "Cloud build (about 10 to 20 min). Gives a link/QR to download and install the app on any Android phone",
+      "type": "shell", "command": "npx eas-cli build --platform android --profile preview", "problemMatcher": []
+    },
+    {
       "label": "iOS: Build developer app (live reload from this PC)",
       "detail": "For live editing: the iPhone loads code from Metro on this PC over the same Wi-Fi",
       "type": "shell", "command": "npx eas-cli build --platform ios --profile development", "problemMatcher": []
