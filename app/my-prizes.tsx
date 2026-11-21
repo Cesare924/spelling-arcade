@@ -2,7 +2,7 @@
 import { Pressable, Switch, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useApp } from '../src/store/AppContext.tsx';
-import { Screen, Card, Btn, H, P, Row, useLook } from '../src/components/ui.tsx';
+import { Screen, Card, Btn, H, P, Row, useLook, Em } from '../src/components/ui.tsx';
 import { PRIZES } from '../src/data/prizes.ts';
 import { setLook } from '../src/logic/prizes.ts';
 import { profileOf } from '../src/logic/state.ts';
@@ -32,7 +32,7 @@ export default function MyPrizes() {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-around', rowGap: 8, paddingTop: 6, borderBottomWidth: 10, borderBottomColor: '#d6a46c', borderRadius: 4 }}>
           {trophies.map(p => (
             <View key={p.id} style={{ alignItems: 'center', width: '19%' }} accessible accessibilityLabel={own(p.id) ? p.name : `${p.name}, not won yet, ${p.price} tickets`}>
-              {own(p.id) ? <Text style={{ fontSize: 40 }}>{p.em}</Text>
+              {own(p.id) ? <Em em={p.em} size={40} />
                 : <View style={{ width: 40, height: 40, borderRadius: 12, borderWidth: 2, borderStyle: 'dashed', borderColor: '#94a3b8', marginVertical: 6 }} />}
               <Text style={{ fontSize: 11 * f, color: own(p.id) ? c.ink : '#475569', fontWeight: '700', textAlign: 'center' }}>{own(p.id) ? p.name : p.price}</Text>
             </View>
@@ -48,7 +48,7 @@ export default function MyPrizes() {
               style={{ width: '17.5%', aspectRatio: 1, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
                 ...(own(p.id) ? { backgroundColor: '#fff', transform: [{ rotate: `${[-6, 4, -3, 7, -5][i % 5]}deg` }], borderBottomWidth: 2, borderBottomColor: '#fcd34d' }
                   : { borderWidth: 2, borderStyle: 'dashed', borderColor: '#fcd34d' }) }}>
-              <Text style={{ fontSize: own(p.id) ? 28 : 20, color: '#b45309', fontWeight: '900' }}>{own(p.id) ? p.em : '?'}</Text>
+              {own(p.id) ? <Em em={p.em} size={28} /> : <Text style={{ fontSize: 20, color: '#b45309', fontWeight: '900' }}>?</Text>}
             </View>
           ))}
         </View>

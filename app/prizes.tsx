@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { router, Stack } from 'expo-router';
 import { useApp } from '../src/store/AppContext.tsx';
-import { Screen, Card, Btn, H, P, Row, Sheet, IconBtn, useLook } from '../src/components/ui.tsx';
+import { Screen, Card, Btn, H, P, Row, Sheet, IconBtn, useLook, Em } from '../src/components/ui.tsx';
 import { KidHelp } from '../src/components/overlays.tsx';
 import { PRIZES, SHELVES, KIND_NOTE, type PrizeKind } from '../src/data/prizes.ts';
 import { buyPrize, famBlock, famFor, goalOf, requestFam, setAside } from '../src/logic/prizes.ts';
@@ -91,7 +91,7 @@ export default function PrizeCounter() {
               accessibilityLabel={`${it.name}, ${it.owned ? 'owned' : it.price + ' tickets'}`}
               style={({ pressed }) => ({ width: '31.5%', flexGrow: 1, maxWidth: '33%', alignItems: 'center', gap: 4, paddingVertical: 10, paddingHorizontal: 4, borderRadius: 16,
                 backgroundColor: afford || it.owned ? '#fff7ed' : '#f8fafc', borderWidth: 2, borderColor: afford || it.owned ? '#fed7aa' : '#e2e8f0', opacity: pressed ? .8 : 1 })}>
-              <Text style={{ fontSize: 38 }}>{it.em}</Text>
+              <Em em={it.em} size={38} />
               <Text numberOfLines={2} style={{ fontSize: 12.5 * f, fontWeight: '800', color: c.ink, textAlign: 'center', minHeight: 32 * f }}>{it.name}</Text>
               <Text style={{ fontSize: 12 * f, fontWeight: '800', paddingVertical: 3, paddingHorizontal: 8, borderRadius: 999, overflow: 'hidden', backgroundColor: tagBg, color: tagFg }}>{tag}</Text>
               {kid.goal === it.key && <Text style={{ fontSize: 11 * f, color: TICKET.ink, fontWeight: '800' }}>🎯 My goal</Text>}
@@ -110,7 +110,7 @@ export default function PrizeCounter() {
 
       <Sheet visible={!!s} onClose={() => setSel(null)}>
         {s && <>
-          <Text style={{ fontSize: 72, textAlign: 'center' }}>{s.em}</Text>
+          <View style={{ alignItems: 'center' }}><Em em={s.em} size={72} /></View>
           <H style={{ textAlign: 'center' }}>{s.name}</H>
           <P style={{ textAlign: 'center' }}>{s.desc}</P>
           <View style={{ alignItems: 'center' }}><TicketBadge n={s.price} label="tickets" /></View>

@@ -1,6 +1,6 @@
 // Small shared pieces for tickets and prizes.
 import { Text, View } from 'react-native';
-import { useLook } from './ui.tsx';
+import { useLook, Em } from './ui.tsx';
 import type { FamReq } from '../logic/state.ts';
 
 /** Ticket colors (arcade red). Text colors pass contrast on white and on the soft background. */
@@ -24,7 +24,7 @@ export function GoalBar({ goal, have }: { goal: { em: string; name: string; pric
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }} accessible
       accessibilityLabel={`Saving for ${goal.name}: ${Math.min(have, goal.price)} of ${goal.price} tickets`}>
-      <Text style={{ fontSize: 30 }}>{goal.em}</Text>
+      <Em em={goal.em} size={30} />
       <View style={{ flex: 1, gap: 4 }}>
         <Text style={{ fontSize: 14 * f, fontWeight: '800', color: c.ink }}>{done ? `You can get the ${goal.name}!` : `Saving for: ${goal.name}`}</Text>
         <View style={{ height: 10, borderRadius: 5, backgroundColor: '#ffe4e6', overflow: 'hidden' }}>

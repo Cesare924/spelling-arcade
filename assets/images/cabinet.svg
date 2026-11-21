@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFF1A8"/><stop offset=".35" stop-color="#FFD43B"/><stop offset=".7" stop-color="#F59F00"/><stop offset="1" stop-color="#B86E00"/>
+    </linearGradient>
+    <linearGradient id="side" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#C77700"/><stop offset="1" stop-color="#E69500"/>
+    </linearGradient>
+    <linearGradient id="scr" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B1A78"/><stop offset="1" stop-color="#1E0F45"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="64" cy="121" rx="34" ry="4.5" fill="#000" opacity=".18"/>
+  <!-- side depth -->
+  <path d="M86 10h8l4 6v100l-4 4h-8z" fill="url(#side)"/>
+  <!-- body -->
+  <path d="M32 10h56a4 4 0 0 1 4 4v24l-4 4v34l6 10v26a4 4 0 0 1-4 4H34a4 4 0 0 1-4-4V86l6-10V42l-4-4V14a4 4 0 0 1 4-4z" fill="url(#gold)" stroke="#A35F00" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- marquee -->
+  <rect x="37" y="15" width="46" height="17" rx="4" fill="#FFF6CC" stroke="#D98400" stroke-width="2"/>
+  <path d="M60 18.5l1.7 3.6 3.9.5-2.9 2.7.7 3.9-3.4-1.9-3.4 1.9.7-3.9-2.9-2.7 3.9-.5z" fill="#F59F00" transform="translate(0 0)"/>
+  <circle cx="45" cy="23.5" r="2" fill="#F59F00"/><circle cx="75" cy="23.5" r="2" fill="#F59F00"/>
+  <!-- screen -->
+  <rect x="40" y="40" width="40" height="32" rx="5" fill="url(#scr)" stroke="#A35F00" stroke-width="2.5"/>
+  <rect x="45" y="50" width="8" height="10" rx="2" fill="#FDE047"/><rect x="56" y="50" width="8" height="10" rx="2" fill="#A7F3D0"/><rect x="67" y="50" width="8" height="10" rx="2" fill="#F9A8D4"/>
+  <path d="M43 44h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round" opacity=".45"/>
+  <!-- control panel -->
+  <path d="M38 78h44l7 11H31z" fill="#FFE27A" stroke="#A35F00" stroke-width="2.2" stroke-linejoin="round"/>
+  <rect x="47" y="79" width="3" height="6" rx="1.2" fill="#7A4500"/><circle cx="48.5" cy="79" r="3.6" fill="#E03131"/><circle cx="47.5" cy="78" r="1.1" fill="#fff" opacity=".8"/>
+  <circle cx="66" cy="84" r="2.8" fill="#1C7ED6"/><circle cx="74" cy="84" r="2.8" fill="#2F9E44"/>
+  <!-- coin door -->
+  <rect x="52" y="96" width="24" height="16" rx="3" fill="#E69500" stroke="#A35F00" stroke-width="2"/>
+  <rect x="58" y="100" width="3" height="8" rx="1.3" fill="#7A4500"/><rect x="67" y="100" width="3" height="8" rx="1.3" fill="#7A4500"/>
+  <!-- shine -->
+  <path d="M36 16v18" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".55"/>
+  <path d="M36 92v18" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".35"/>
+</svg>

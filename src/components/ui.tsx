@@ -43,6 +43,15 @@ export function withCoin(node: React.ReactNode, size: number): React.ReactNode {
   return node;
 }
 
+// Prizes drawn as our own pictures instead of an emoji (the emoji stays as the name for toasts and saved data).
+const PICTURES: Record<string, any> = { '🕹️': require('../../assets/images/cabinet.png') };
+/** A prize's picture: our own image where we have one, otherwise the emoji. */
+export function Em({ em, size }: { em: string; size: number }) {
+  const pic = PICTURES[em];
+  if (pic) return <Image source={pic} style={{ width: size * 1.2, height: size * 1.2 }} accessibilityLabel="Golden arcade cabinet" />;
+  return <Text style={{ fontSize: size }}>{em}</Text>;
+}
+
 export function Screen({ children, scroll = true, keyboardEnd = false }: { children: React.ReactNode; scroll?: boolean; keyboardEnd?: boolean }) {
   const { c } = useLook();
   // keyboardEnd: for screens whose text box sits near the bottom (spelling practice and tests).

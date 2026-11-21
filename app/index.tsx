@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { router, Stack, useFocusEffect } from 'expo-router';
 import { useApp } from '../src/store/AppContext.tsx';
-import { Screen, Card, Btn, H, P, Row, IconBtn, useLook, withCoin } from '../src/components/ui.tsx';
+import { Screen, Card, Btn, H, P, Row, IconBtn, useLook, withCoin, Em } from '../src/components/ui.tsx';
 import { KidPicker } from '../src/components/overlays.tsx';
 import { SHOW_SUPPORT_LINK } from '../src/config.ts';
 import { allWords, trickyWords, dueWords, streak, upcomingTest, whenText, profileOf, plural } from '../src/logic/state.ts';
@@ -47,7 +47,7 @@ export default function Home() {
         {trophies.length > 0 && (
           <View accessible accessibilityLabel={`Trophy shelf: ${trophies.map(t => t.name).join(', ')}`}
             style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 12, paddingTop: 2, borderBottomWidth: 6, borderBottomColor: '#d6a46c', borderRadius: 3 }}>
-            {trophies.map(t => <Text key={t.id} style={{ fontSize: 34 }}>{t.em}</Text>)}
+            {trophies.map(t => <Em key={t.id} em={t.em} size={34} />)}
           </View>
         )}
         <P small style={{ textAlign: 'center', color: soft }}>Spell words to earn 🪙 tokens. Play games to win 🎟️ tickets!</P>
