@@ -36,7 +36,7 @@ const FAQ: [string, [string, string][]][] = [
     ['How do I choose a male or female voice?', "Settings › Practice › Voice. The voices come from the phone, so the choices differ by phone. You can add free voices: on Android, Settings › Text-to-speech; on iPhone, Settings › Accessibility › Spoken Content › Voices › English (US)."],
     ['What do Sentence and Meaning do?', "They read a short sentence that uses the word (or, for grades 4–6, explain its meaning). The word is blanked out on screen so it isn't given away."]]],
   ['🪙 Tokens, games & limits', [
-    ['How do tokens work?', 'Each correct word earns a token (or 2 on the first try, if you turn that on). Games cost 1 to 3 tokens. Add bonus tokens in Settings › Grown-up tools.'],
+    ['How do tokens work?', 'Each correct word earns a token (or 2 on the first try, if you turn that on). Games cost 1 to 3 tokens. Tokens can only be earned by spelling.'],
     ['Can I limit game time?', 'Yes. Settings › Tokens & games › Games per day or Play time per day. A game in progress ends with "Time for a break!" when time runs out.'],
     ['Can I hide a game?', 'Yes. Settings › Games to show. Kids can also mark favorites with the ☆ on each game.']]],
   ['🎟️ Tickets & the Prize Counter', [
@@ -47,7 +47,7 @@ const FAQ: [string, [string, string][]][] = [
     ['How do family prize requests work?', "When a kid picks a family prize, its tickets are set aside and the home screen shows it's waiting. Tap \"Grown-up: answer now\" there (or go to Settings › Tickets & prizes › Family prizes) and enter the PIN. \"OK it\" completes it; \"Not now\" gives the tickets back."],
     ['Can I hide family prizes?', 'Yes. Turn off "Show family prizes" in Family prizes. The Family shelf disappears from the Prize Counter, but your prizes are kept for later.'],
     ['Can kids earn too many tickets?', 'A game pays at most 37 tickets, and only games paid for with tokens pay out. Games per day and Play time per day (in Settings › Tokens & games) limit tickets too.'],
-    ['Can I give or take away tickets?', 'Yes. Settings › Tickets & prizes has bonus buttons. Settings › Grown-up tools › Reset › Tickets & prizes clears a kid\'s tickets and prizes.']]],
+    ['Can I give or take away tickets?', 'No. Tickets can only be won in games, so every ticket is earned. Settings › Grown-up tools › Reset › Tickets & prizes clears a kid\'s tickets and prizes.']]],
   ['🔒 PIN & privacy', [
     ['What does the PIN protect?', "My Words, Settings, Family prizes (including OKing requests), the progress report and this Help page. It's asked every time you open one of these from the home screen, and stays open while you move between them. It keeps young kids out but isn't strong security."],
     ['I forgot the PIN.', 'On the PIN pad, tap "Forgot PIN?" and answer the multiplication question to remove it.'],

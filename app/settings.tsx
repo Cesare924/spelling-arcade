@@ -13,7 +13,7 @@ import { sfx } from '../src/sfx.ts';
 import { shareBackupFile, copyBackup, pickBackupFile, pasteText } from '../src/backupIO.ts';
 import { GrownUpGate } from '../src/components/GrownUpGate.tsx';
 import { APP_VERSION, SHOW_SUPPORT_LINK, SUPPORT_URL, PRIVACY_URL } from '../src/config.ts';
-import { adjustTickets, waitingReqs } from '../src/logic/prizes.ts';
+import { waitingReqs } from '../src/logic/prizes.ts';
 
 function SettingsScreenInner() {
   const { root, kid, updateKid, updateRoot, choosePin, toast, restore, undoRestore, hasUndo } = useApp();
@@ -134,23 +134,19 @@ function SettingsScreenInner() {
 
       <Card>
         <H>🎟️ Tickets & prizes</H>
-        <P small>Kids win tickets in games (better scores win more) and trade them at the Prize Counter. Tickets are only ever earned, never bought.</P>
-        <P small>{me.name} has {plural(kid.tickets, 'ticket')} · {plural(kid.owned.length, 'prize')} · won {kid.tix.earned} in all</P>
-        <Row>{[-10, 10, 25, 50].map(n => <Btn key={n} small kind={n < 0 ? 'ghost' : 'primary'} label={n < 0 ? `−${-n}` : `+${n} 🎟️`} onPress={() => { updateKid(k => adjustTickets(k, n)); if (n > 0) sfx('coin', s.sfx); }} />)}</Row>
+        <P small>Kids win tickets in games (better scores win more) and trade them at the Prize Counter. Tickets are only ever won in games: they can't be bought or given.</P>
+        <P small>{me.name} has {plural(kid.tokens, 'token')} · {plural(kid.tickets, 'ticket')} · {plural(kid.owned.length, 'prize')} · won {kid.tix.earned} in all</P>
         <Btn kind="secondary" label={`👨‍👩‍👧 Family prizes${waitingReqs(root).length ? ` · ${waitingReqs(root).length} waiting` : ''}`} onPress={() => router.push('/family-prizes')} />
       </Card>
 
       <Card>
         <H>🔒 Grown-up tools</H>
         <Text style={{ fontSize: 16 * f, color: c.ink, fontWeight: '700' }}>Grown-up PIN</Text>
-        <P small>{root.pin ? 'On. My Words, Settings, Help and the report need the PIN.' : 'Off. Anyone can change words, tokens and settings.'}</P>
+        <P small>{root.pin ? 'On. My Words, Settings, Help and the report need the PIN.' : 'Off. Anyone can change words and settings.'}</P>
         <Row>
           <Btn small label={root.pin ? 'Change PIN' : 'Set a PIN'} onPress={() => choosePin()} />
           {!!root.pin && <Btn small kind="ghost" label="Turn off PIN" onPress={() => confirm('Turn off the PIN?', 'Anyone will be able to change words and settings.', () => { updateRoot(r => { r.pin = ''; }); toast('PIN turned off'); }, 'Turn off')} />}
         </Row>
-        <Text style={{ fontSize: 16 * f, color: c.ink, fontWeight: '700' }}>Bonus tokens</Text>
-        <P small>{me.name} has {plural(kid.tokens, 'token')}</P>
-        <Row>{[-1, 1, 5, 10].map(n => <Btn key={n} small kind={n < 0 ? 'ghost' : 'primary'} label={n < 0 ? '−1' : `+${n}`} onPress={() => { updateKid(k => { k.tokens = Math.max(0, k.tokens + n); }); if (n > 0) sfx('coin', s.sfx); }} />)}</Row>
 
         <Text style={{ fontSize: 16 * f, color: c.ink, fontWeight: '700' }}>💾 Backup & restore</Text>
         <P small>Saves every kid's word lists, progress, tokens and settings in one file. Keep it somewhere safe, like your email or Google Drive. Backups from the web version work here too.</P>
