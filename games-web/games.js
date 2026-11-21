@@ -1831,7 +1831,7 @@ function createDino(){
     const sp=speed();g.dist+=sp*dt;g.hills[0]=(g.hills[0]+sp*.2*dt)%400;g.hills[1]=(g.hills[1]+sp*.5*dt)%300;
     g.vy+=1650*dt;g.y+=g.vy*dt;if(g.y>=GY){g.y=GY;g.vy=0;g.jumps=0;}
     g.sT-=dt;if(g.sT<=0){const big=Math.random()<.35;g.obs.push({x:W+30,w:big?30:22,h:big?52:40,two:Math.random()<.18&&g.t>15});g.sT=rnd(.95,1.8)*(300/sp)*(TOL());}
-    g.iT-=dt;if(g.iT<=0){g.items.push({x:W+20,y:rnd(290,370)});g.iT=rnd(1.4,2.6);}
+    g.iT-=dt;if(g.iT<=0){g.items.push({x:W+20,y:rnd(290,370),ph:rnd(0,6.28)});g.iT=rnd(1.4,2.6);}
     for(const o of g.obs){o.x-=sp*dt;
       const ow=o.two?o.w*1.9:o.w;
       if(!o.hit&&g.inv<=0&&DX+14>o.x-ow/2&&DX-14<o.x+ow/2&&g.y>GY-o.h+6){o.hit=true;g.hearts--;g.inv=1.2;sfx('bonk');addPop(g.pops,'Ouch!',DX+40,GY-80,'#fca5a5',28);if(g.hearts<=0){g.over=true;}}}
@@ -1845,7 +1845,7 @@ function createDino(){
     c.fillStyle='#f4a261';for(let i=-1;i<3;i++){const x=i*400-g.hills[0];c.beginPath();c.moveTo(x,GY);c.quadraticCurveTo(x+100,230,x+200,GY);c.quadraticCurveTo(x+300,280,x+400,GY);c.fill();}
     c.fillStyle='#e76f51';for(let i=-1;i<3;i++){const x=i*300-g.hills[1];c.beginPath();c.moveTo(x,GY);c.quadraticCurveTo(x+80,330,x+150,GY);c.fill();}
     c.fillStyle='#d4a373';c.fillRect(0,GY+8,W,H-GY);c.fillStyle='#a16207';for(let x=-(g.dist%40);x<W;x+=40)c.fillRect(x,GY+24,16,3);
-    for(const it of g.items)emo(c,'⭐',it.x,it.y+Math.sin(g.t*5+it.x)*4,30);
+    for(const it of g.items)emo(c,'⭐',it.x,it.y+Math.sin(g.t*3+it.ph)*6,30);
     for(const o of g.obs){emo(c,'🌵',o.x,GY+8-o.h/2,o.h*1.15);if(o.two)emo(c,'🌵',o.x+o.w*.9,GY+8-o.h/2,o.h*1.15);}
     if(!(g.inv>0&&Math.floor(g.inv*12)%2)){const run=g.y>=GY?Math.sin(g.t*20)*3:0;emo(c,LOOKS.dino?'🦘':'🦖',DX,g.y-22+run,56,true);}
     c.fillStyle='rgba(0,0,0,.15)';c.beginPath();c.ellipse(DX,GY+8,20*(1-(GY-g.y)/400),5,0,0,7);c.fill();

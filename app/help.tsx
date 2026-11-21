@@ -49,7 +49,7 @@ const FAQ: [string, [string, string][]][] = [
     ['Can kids earn too many tickets?', 'A game pays at most 37 tickets, and only games paid for with tokens pay out. Games per day and Play time per day (in Settings › Tokens & games) limit tickets too.'],
     ['Can I give or take away tickets?', 'Yes. Settings › Tickets & prizes has bonus buttons. Settings › Grown-up tools › Reset › Tickets & prizes clears a kid\'s tickets and prizes.']]],
   ['🔒 PIN & privacy', [
-    ['What does the PIN protect?', "My Words, Settings, Family prizes (including OKing requests), the progress report and this Help page. It stays unlocked for 10 minutes after you enter it. It keeps young kids out but isn't strong security."],
+    ['What does the PIN protect?', "My Words, Settings, Family prizes (including OKing requests), the progress report and this Help page. It's asked every time you open one of these from the home screen, and stays open while you move between them. It keeps young kids out but isn't strong security."],
     ['I forgot the PIN.', 'On the PIN pad, tap "Forgot PIN?" and answer the multiplication question to remove it.'],
     ['Where is our data kept?', 'Only on this phone. Scanning happens on the phone too. No accounts, no ads and no tracking. Save a backup so nothing is lost if the phone is replaced.'],
     ['Where is the privacy policy?', 'Tap "Privacy policy" at the bottom of this page, or in Settings › About & support. It opens cesare924.github.io/spelling-arcade in your browser.']]],

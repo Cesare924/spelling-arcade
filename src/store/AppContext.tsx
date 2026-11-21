@@ -1,10 +1,13 @@
 // App-wide state, saved on the device with AsyncStorage, plus the grown-up PIN and toasts.
 import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AppState } from 'react-native';
 import { normalizeRoot, kidOf, type Root, type Kid } from '../logic/state.ts';
 
 const KEY = 'spellingarcade.v1';
 const PREV_KEY = 'spellingarcade.prev';
+// Once the PIN is entered, grown-up screens stay open while the grown-up moves between them.
+// It locks again on the home screen, when the app is put away, or after this long at most.
 const UNLOCK_MS = 10 * 60 * 1000;
 
 export type PinMode = 'check' | 'set';
@@ -31,6 +34,7 @@ interface Ctx {
   pinRequest: PinRequest | null;
   closePin: (ok: boolean) => void;
   unlock: () => void;
+  lock: () => void;
   toast: (msg: string) => void;
   toastMsg: string;
 }
@@ -88,6 +92,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const unlock = useCallback(() => { unlockedUntil.current = Date.now() + UNLOCK_MS; }, []);
+  const lock = useCallback(() => { unlockedUntil.current = 0; }, []);
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', s => { if (s !== 'active') unlockedUntil.current = 0; });
+    return () => sub.remove();
+  }, []);
   const isUnlocked = useCallback(() => !rootRef.current.pin || Date.now() < unlockedUntil.current, []);
   const requirePin = useCallback((fn: () => void, onCancel?: () => void) => {
     if (!rootRef.current.pin || Date.now() < unlockedUntil.current) { fn(); return; }
@@ -103,7 +112,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   return (
     <AppCtx.Provider value={{
       ready, root, kid: kidOf(root), updateKid, updateRoot, restore, undoRestore, hasUndo,
-      requirePin, isUnlocked, choosePin, pinRequest, closePin, unlock, toast, toastMsg,
+      requirePin, isUnlocked, choosePin, pinRequest, closePin, unlock, lock, toast, toastMsg,
     }}>
       {children}
     </AppCtx.Provider>

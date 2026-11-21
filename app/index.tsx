@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { router, Stack } from 'expo-router';
+import { router, Stack, useFocusEffect } from 'expo-router';
 import { useApp } from '../src/store/AppContext.tsx';
 import { Screen, Card, Btn, H, P, Row, IconBtn, useLook, withCoin } from '../src/components/ui.tsx';
 import { KidPicker } from '../src/components/overlays.tsx';
@@ -11,7 +11,9 @@ import { goalOf, lookIn } from '../src/logic/prizes.ts';
 import { GoalBar, TICKET } from '../src/components/tickets.tsx';
 
 export default function Home() {
-  const { ready, root, kid, requirePin } = useApp();
+  const { ready, root, kid, requirePin, lock } = useApp();
+  // Back on the kids' home screen: the grown-up PIN is needed again.
+  useFocusEffect(useCallback(() => { lock(); }, [lock]));
   const { c, f } = useLook();
   const [picker, setPicker] = useState(false);
   const words = allWords(kid);
