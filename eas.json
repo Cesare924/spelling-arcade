@@ -9,6 +9,9 @@
       "distribution": "internal",
       "env": {
         "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
+      },
+      "ios": {
+        "image": "sdk-58"
       }
     },
     "preview": {
@@ -19,6 +22,9 @@
       },
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "image": "sdk-58"
       }
     },
     "production": {
@@ -26,7 +32,10 @@
         "SHOW_SUPPORT_LINK": "false",
         "NPM_CONFIG_LEGACY_PEER_DEPS": "true"
       },
-      "autoIncrement": true
+      "autoIncrement": true,
+      "ios": {
+        "image": "sdk-58"
+      }
     }
   },
   "submit": {
