@@ -930,7 +930,7 @@ function createMoonRocket(){
       const blank=g.hint.replace(new RegExp('(^|[^A-Za-z])('+escRe(g.word)+')(?![A-Za-z])','gi'),(m,p)=>p+'_'.repeat(g.word.length));wrap(c,'💬 '+blank,180,201,W-48,18);}
     for(const k of keyPos){
       const t=g.tried.has(k.ch),good=t&&g.word.includes(k.ch);
-      c.fillStyle=good?'#16a34a':t?'#475569':'#ede9fe';rr(c,k.x,k.y,KS,KS,10);c.fill();
+      c.fillStyle=good?'#15803d':t?'#475569':'#ede9fe';rr(c,k.x,k.y,KS,KS,10);c.fill();
       c.fillStyle=good||t?'#fff':'#3b0764';c.font='700 22px Fredoka, sans-serif';c.textAlign='center';c.textBaseline='middle';c.fillText(k.ch.toUpperCase(),k.x+KS/2,k.y+KS/2+1);
     }
     drawParts(c,g.parts);drawPops(c,g.pops);
@@ -1378,7 +1378,7 @@ function createHockey(){
       const ax=aimX(),ok=open();
       dashLine(c,[[PX,PY-8],[ax,GY-14]],ok?'rgba(22,163,74,.9)':'rgba(30,41,59,.4)',4,-g.t*30);
       c.strokeStyle=ok?'#16a34a':'#475569';c.lineWidth=3;c.beginPath();c.arc(ax,GY-16,9,0,7);c.stroke();c.beginPath();c.moveTo(ax-14,GY-16);c.lineTo(ax+14,GY-16);c.moveTo(ax,GY-30);c.lineTo(ax,GY-2);c.stroke();
-      hintText(c,ok?'Shoot now!':'Tap to shoot',PY+44);c.fillStyle=ok?'#16a34a':'#334155';c.fillText(ok?'Shoot now!':'Tap to shoot',180,PY+44);
+      hintText(c,ok?'Shoot now!':'Tap to shoot',PY+44);c.fillStyle=ok?'#15803d':'#334155';c.fillText(ok?'Shoot now!':'Tap to shoot',180,PY+44);
     }
     // puck
     const p=g.puck;let px=PX,py=PY;

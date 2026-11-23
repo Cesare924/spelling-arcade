@@ -10,7 +10,8 @@ import { useApp } from '../store/AppContext.tsx';
 const BASE = {
   bg: '#f5f3ff', card: '#ffffff', ink: '#1e1b4b', soft: '#4c4f6b', line: '#ddd6fe',
   brand: '#7c3aed', brandDark: '#5b21b6', brandSoft: '#ede9fe', sun: '#f59e0b', sunSoft: '#fef3c7',
-  good: '#16a34a', goodBg: '#dcfce7', bad: '#dc2626', badBg: '#fee2e2', sky: '#0284c7', tile: '#fef3c7',
+  // good and sky are dark enough for white button text (4.5:1, WCAG AA); see the accessibility review.
+  good: '#15803d', goodBg: '#dcfce7', bad: '#dc2626', badBg: '#fee2e2', sky: '#0369a1', tile: '#fef3c7',
 };
 const HIGH = {
   ...BASE, bg: '#ffffff', ink: '#000000', soft: '#111827', line: '#1e1b4b', brand: '#4c1d95', brandDark: '#2e1065',

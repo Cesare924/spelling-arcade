@@ -37,7 +37,7 @@ export default function Arcade() {
       <Card key={id} style={{ width: '48%', flexGrow: 1, alignItems: 'center', gap: 6, paddingTop: 12 }}>
         <Pressable onPress={() => toggleFav(id)} hitSlop={10} style={{ position: 'absolute', top: 6, right: 8 }}
           accessibilityRole="button" accessibilityLabel={`${on ? 'Remove from' : 'Add to'} favorites`} accessibilityState={{ selected: on }}>
-          <Text style={{ fontSize: 24, color: on ? c.sun : '#a1a1aa' }}>{on ? '★' : '☆'}</Text>
+          <Text style={{ fontSize: 24, color: on ? '#d97706' : '#71717a' }}>{on ? '★' : '☆'}</Text>
         </Pressable>
         <Text style={{ fontSize: 40 }}>{g.em}</Text>
         <Text style={{ fontSize: 16 * f, fontWeight: '900', color: c.ink, textAlign: 'center' }}>{g.title}</Text>
