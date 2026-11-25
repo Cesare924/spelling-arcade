@@ -198,6 +198,8 @@ window.__tickets=function(r){
   if(!total)clearInterval(iv);
 };
 $('#back').addEventListener('click',exit);
+// In the app, a native button sits here instead (it works the same on every phone).
+if(INIT.nativeBack)$('#back').style.visibility='hidden';
 function cvPt(e){const r=cv.getBoundingClientRect();return [(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height];}
 cv.addEventListener('pointerdown',e=>{
   e.preventDefault();

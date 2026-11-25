@@ -1,7 +1,7 @@
 // Runs one game. The games are the same canvas games as the web version, bundled
 // with the app and shown offline in a WebView. They talk to the app with small messages.
 import { useMemo, useRef } from 'react';
-import { View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
@@ -30,6 +30,8 @@ export default function Game() {
     return {
       id, title: GAMES[id].title, em: GAMES[id].em, words, sent, tokens: kid.tokens, best: kid.best, day: { games: day.games, ms: day.ms },
       looks: looksBySlot(kid),
+      // The app draws its own "← Arcade" button over the game, so the page hides its copy.
+      nativeBack: true,
       set: { diff: kid.set.diff, calm: kid.set.calm, sfx: kid.set.sfx, voice: kid.set.voice, twice: kid.set.twice, grade: kid.set.grade, cost: kid.set.cost, maxGames: kid.set.maxGames, maxMin: kid.set.maxMin },
     };
   }, [id]);
@@ -57,7 +59,21 @@ export default function Game() {
       showTickets(pay, kid.tickets + pay.total);
     }
     else if (m.t === 'speak') sayFromGame(String(m.text || '').slice(0, 300), !!m.raw, kid.set);
-    else if (m.t === 'exit') { stopSpeech(); if (router.canGoBack()) router.back(); else router.replace('/arcade'); }
+    else if (m.t === 'exit') leave();
+  }
+
+  // Back to the Arcade. Used by the native button and by the game's own Arcade buttons.
+  const left = useRef(false);
+  function leave() {
+    if (left.current) return;
+    left.current = true;
+    stopSpeech();
+    if (router.canGoBack()) router.back(); else router.replace('/arcade');
+  }
+  // The native button asks the page to report its play time first, then leaves.
+  function backPressed() {
+    web.current?.injectJavaScript('try{flushMs()}catch(e){};true;');
+    setTimeout(leave, 120);
   }
 
   // Sends the payout to the game-over screen, which shows the ticket strip.
@@ -99,6 +115,13 @@ export default function Game() {
           textZoom={100}
           style={{ backgroundColor: '#1e1b4b' }}
         />
+        {/* A real button, drawn by the app, so it works the same on every phone and with screen readers. */}
+        <Pressable accessibilityRole="button" accessibilityLabel="Back to Arcade" onPress={backPressed}
+          hitSlop={8}
+          style={({ pressed }) => ({ position: 'absolute', left: 10, top: 8, height: 38, paddingHorizontal: 12, borderRadius: 12,
+            justifyContent: 'center', backgroundColor: pressed ? 'rgba(255,255,255,.32)' : 'rgba(255,255,255,.18)' })}>
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '700' }} allowFontScaling={false}>← Arcade</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
