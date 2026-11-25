@@ -206,6 +206,11 @@
       "type": "shell", "command": "npx eas-cli build --platform ios --profile preview", "problemMatcher": []
     },
     {
+      "label": "Android: Google Play build (.aab)",
+      "detail": "Store build for Google Play (about 15 to 25 min). Download the .aab from the link, then upload it in Play Console",
+      "type": "shell", "command": "npx eas-cli build --platform android --profile production", "problemMatcher": []
+    },
+    {
       "label": "Android: Build test app (install link for any phone)",
       "detail": "Cloud build (about 10 to 20 min). Gives a link/QR to download and install the app on any Android phone",
       "type": "shell", "command": "npx eas-cli build --platform android --profile preview", "problemMatcher": []
