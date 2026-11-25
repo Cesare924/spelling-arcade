@@ -2069,11 +2069,18 @@ function createDino(){
 }
 
 /* ===== GAME 27: Puppy Fetch ===== */
+// Puppy Fetch's ball, drawn here: some phones draw the tennis emoji as a racket and ball.
+function fetchBall(c,x,y,r){c.save();c.translate(x,y);
+  const gr=c.createRadialGradient(-r*.35,-r*.35,r*.1,0,0,r);gr.addColorStop(0,'#f7ff9e');gr.addColorStop(.6,'#d4e631');gr.addColorStop(1,'#9fb51a');
+  c.fillStyle=gr;c.beginPath();c.arc(0,0,r,0,7);c.fill();
+  c.strokeStyle='#ffffff';c.lineWidth=Math.max(1.5,r*.16);c.lineCap='round';
+  c.beginPath();c.arc(-r*1.35,0,r*.95,-.75,.75);c.stroke();c.beginPath();c.arc(r*1.35,0,r*.95,Math.PI-.75,Math.PI+.75);c.stroke();
+  c.restore();}
 function createPuppy(){
   const GY=452,BX=74,BY=380,GRAV=520;
   const g={over:false,score:0,t:0,toss:0,total:10,catches:0,state:'aim',drag:null,ball:null,px:260,tx:260,pj:0,timer:0,parts:[],pops:[],hearts:[]};
   g.intro='Play fetch! <b>Press and pull back</b> like a slingshot, then let go to toss the ball. The dashed arc shows where it will fly. Toss it right to the 🐶 puppy!<br>10 tosses. Catch in the air = 3 points, close landing = 1.';
-  g.hud=()=>`🐶 Toss ${Math.min(g.toss+1,g.total)}/${g.total} · 🎾 ${g.catches} catches · ⭐ ${g.score}`;
+  g.hud=()=>`🐶 Toss ${Math.min(g.toss+1,g.total)}/${g.total} · Catches ${g.catches} · ⭐ ${g.score}`;
   g.endTitle='Good puppy!';
   const CY=()=>GY-48,catchR=()=>30*TOL();
   function newSpot(){g.tx=rnd(170,320);}
@@ -2116,9 +2123,9 @@ function createPuppy(){
       else hintText(c,'Press, pull back, let go',GY+58);
     }
     const py=CY()+16-g.pj*40;emo(c,LOOKS.puppy?'🐱':'🐶',g.px,py,58,true);
-    if(g.state==='done'&&g.caught)emo(c,'🎾',g.px+18,py+8,22);
-    const b=g.ball;if(b&&!(g.state==='done'&&g.caught)){c.save();c.translate(b.x,b.y);c.rotate(b.spin);emo(c,'🎾',0,0,24);c.restore();}
-    if(g.state==='aim'&&!g.ball)emo(c,'🎾',BX,BY,24);
+    if(g.state==='done'&&g.caught)fetchBall(c,g.px+18,py+8,10);
+    const b=g.ball;if(b&&!(g.state==='done'&&g.caught)){c.save();c.translate(b.x,b.y);c.rotate(b.spin);fetchBall(c,0,0,11);c.restore();}
+    if(g.state==='aim'&&!g.ball)fetchBall(c,BX,BY,11);
     drawParts(c,g.parts);drawPops(c,g.pops);
   };
   return g;
